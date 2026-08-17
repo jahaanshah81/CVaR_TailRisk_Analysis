@@ -1,0 +1,11 @@
+asset,strategy,CVaR_5pct,mean_pnl,mean_transaction_cost
+SPY (calm equity),Daily rebalancing (band_width=0),37.47441164700096,-5.785504612781193,
+SPY (calm equity),Band hedging (width=0.02),37.36729090047226,-5.742807956042154,0.7733035293470093
+SPY (calm equity),Band hedging (width=0.05),37.38352582662884,-5.608411647965046,0.6390963023216407
+SPY (calm equity),Band hedging (width=0.1),36.90892344228217,-5.478022295004179,0.4651947682110387
+SPY (calm equity),Band hedging (width=0.2),36.27904371186192,-5.198009763524444,0.2923961688774641
+BTC-USD (volatile crypto),Daily rebalancing (band_width=0),9561.578473244866,-1469.7904371230732,
+BTC-USD (volatile crypto),Band hedging (width=0.02),9511.634449731291,-1462.922403210796,100.04588592087993
+BTC-USD (volatile crypto),Band hedging (width=0.05),9494.894649502568,-1449.2194386923184,82.4019694495644
+BTC-USD (volatile crypto),Band hedging (width=0.1),9625.171376863424,-1450.9703750024432,59.61504290688972
+BTC-USD (volatile crypto),Band hedging (width=0.2),10224.909785067608,-1469.2421611221926,37.719454340115654

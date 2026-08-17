@@ -1,0 +1,10 @@
+numpy>=2.0
+pandas>=2.2
+scipy>=1.13
+matplotlib>=3.8
+yfinance>=0.2
+streamlit>=1.30
+plotly>=5.20
+
+# dev/test only (not required to run run_experiment.py or the dashboard)
+pytest>=7.0

@@ -1,0 +1,25 @@
+asset,scenario,hedge_model,terminal_pnl,price_move_pct
+SPY (calm equity),"Black Monday (–87-style, -20% single day)",BS hedge,-52.05214658688651,-20.000000000000007
+SPY (calm equity),"Black Monday (–87-style, -20% single day)",Merton hedge,-47.67739529629887,-20.000000000000007
+SPY (calm equity),COVID-style crash (2020) + vol-spike aftermath,BS hedge,-23.70139191188888,-20.056271070354736
+SPY (calm equity),COVID-style crash (2020) + vol-spike aftermath,Merton hedge,-20.86498668761877,-20.056271070354736
+SPY (calm equity),Flash crash (-10% then +5% rebound),BS hedge,-13.710410734406384,-5.50000000000005
+SPY (calm equity),Flash crash (-10% then +5% rebound),Merton hedge,-8.091091968169913,-5.50000000000005
+SPY (calm equity),Vol-regime doubling (no directional jump),BS hedge,-25.59781900201488,-4.9820272314256115
+SPY (calm equity),Vol-regime doubling (no directional jump),Merton hedge,-19.51514857653582,-4.9820272314256115
+SPY (calm equity),"Slow grind lower (-0.25%/day, low vol)",BS hedge,5.0310971881368145,-14.589163636538204
+SPY (calm equity),"Slow grind lower (-0.25%/day, low vol)",Merton hedge,7.536035802588317,-14.589163636538204
+SPY (calm equity),Melt-up rally (+0.6%/day),BS hedge,1.3440432222064373,45.771554585232835
+SPY (calm equity),Melt-up rally (+0.6%/day),Merton hedge,2.744111217240743,45.771554585232835
+BTC-USD (volatile crypto),"Black Monday (–87-style, -20% single day)",BS hedge,-1452.132957421546,-19.99999999999997
+BTC-USD (volatile crypto),"Black Monday (–87-style, -20% single day)",Merton hedge,-262.5439520894758,-19.99999999999997
+BTC-USD (volatile crypto),COVID-style crash (2020) + vol-spike aftermath,BS hedge,-731.7245656609603,-20.31322825231676
+BTC-USD (volatile crypto),COVID-style crash (2020) + vol-spike aftermath,Merton hedge,-7.079216509729328,-20.31322825231676
+BTC-USD (volatile crypto),Flash crash (-10% then +5% rebound),BS hedge,4432.720987221495,-5.500000000000094
+BTC-USD (volatile crypto),Flash crash (-10% then +5% rebound),Merton hedge,5842.567835003434,-5.500000000000094
+BTC-USD (volatile crypto),Vol-regime doubling (no directional jump),BS hedge,-8959.553842180498,-13.73145788465454
+BTC-USD (volatile crypto),Vol-regime doubling (no directional jump),Merton hedge,-7341.09007667496,-13.73145788465454
+BTC-USD (volatile crypto),"Slow grind lower (-0.25%/day, low vol)",BS hedge,3945.9700926990013,-14.58916363653816
+BTC-USD (volatile crypto),"Slow grind lower (-0.25%/day, low vol)",Merton hedge,5007.276920644018,-14.58916363653816
+BTC-USD (volatile crypto),Melt-up rally (+0.6%/day),BS hedge,2294.3693285389163,45.771554585232764
+BTC-USD (volatile crypto),Melt-up rally (+0.6%/day),Merton hedge,3184.5228581314295,45.771554585232764

@@ -1,0 +1,2571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Complete Guide to the Options Market-Making &amp; Delta-Hedging Simulator</title>
+<style>
+  @page { size: Letter; margin: 22mm 20mm 20mm 20mm; }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 11.3pt;
+    line-height: 1.55;
+    color: #1b1f24;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+    color: #0B2545;
+    line-height: 1.25;
+  }
+
+  /* ---------- Cover page ---------- */
+  .cover {
+    height: 245mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    page-break-after: always;
+    background: linear-gradient(160deg, #0B2545 0%, #144272 55%, #205295 100%);
+    color: white;
+    margin: -22mm -20mm -20mm -20mm;
+    padding: 0 24mm;
+  }
+  .cover .kicker {
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-size: 11pt;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    opacity: 0.85;
+    margin-bottom: 10px;
+  }
+  .cover h1 {
+    color: white;
+    font-size: 32pt;
+    margin: 0 0 8px 0;
+    max-width: 460pt;
+  }
+  .cover h2 {
+    color: #d7e6ff;
+    font-weight: 400;
+    font-size: 15pt;
+    max-width: 420pt;
+    margin: 0 0 30px 0;
+  }
+  .cover .pillrow { margin-bottom: 40px; }
+  .cover .pill {
+    display: inline-block;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 8.6pt;
+    padding: 4px 11px;
+    margin: 3px 6px 3px 0;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+  .cover .footer-note {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 9.5pt;
+    opacity: 0.8;
+    border-top: 1px solid rgba(255,255,255,0.3);
+    padding-top: 14px;
+    max-width: 460pt;
+  }
+
+  /* ---------- TOC ---------- */
+  .toc-page { page-break-after: always; }
+  .toc-page h2 { font-size: 22pt; border-bottom: 3px solid #205295; padding-bottom: 8px;}
+  .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: part; }
+  .toc > ol > li {
+    counter-increment: part;
+    margin: 10px 0 4px 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 11.5pt;
+  }
+  .toc > ol > li::before { content: "Part " counter(part) " \2014  "; color: #205295; }
+  .toc a { color: #14213d; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .toc .sub { list-style: none; margin: 2px 0 6px 26px; padding: 0; font-weight: 400; font-size: 10.3pt; }
+  .toc .sub li { margin: 2px 0; color: #333; }
+  .toc .sub a { color: #333; }
+
+  /* ---------- Section structure ---------- */
+  .part-title-page {
+    page-break-before: always;
+    padding-top: 60mm;
+  }
+  .part-title-page .part-kicker {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 11pt;
+    color: #205295;
+  }
+  .part-title-page h1 { font-size: 27pt; margin: 6px 0 14px 0; max-width: 420pt;}
+  .part-title-page .part-teaser { font-size: 12.5pt; color: #444; max-width: 420pt; font-family: 'Segoe UI', Arial, sans-serif;}
+
+  h2.section { font-size: 17pt; margin-top: 30px; border-bottom: 2px solid #b9d0ef; padding-bottom: 5px; }
+  h3.subsection { font-size: 13.5pt; margin-top: 22px; color: #14213d; }
+  h4.subsub { font-size: 11.8pt; margin-top: 16px; color: #205295; font-family: Georgia, serif; font-style: italic;}
+
+  p { margin: 9px 0; text-align: justify; }
+  ul, ol { margin: 8px 0; padding-left: 24px; }
+  li { margin: 4px 0; }
+
+  strong { color: #0B2545; }
+
+  /* ---------- Callout boxes ---------- */
+  .box { border-radius: 6px; padding: 12px 16px; margin: 14px 0; page-break-inside: avoid; font-size: 10.6pt; }
+  .box .box-label {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 8.6pt;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .plain {
+    background: #eef6ff;
+    border-left: 4px solid #2f6fbf;
+  }
+  .plain .box-label { color: #1c4d85; }
+
+  .formula {
+    background: #f7f5ef;
+    border-left: 4px solid #a9862f;
+  }
+  .formula .box-label { color: #7a5c14; }
+  .formula .eq {
+    font-family: 'Cambria Math', Georgia, serif;
+    font-size: 13pt;
+    text-align: center;
+    margin: 10px 0;
+    padding: 8px;
+  }
+  .formula table.symboltable { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10pt;}
+  .formula table.symboltable td { padding: 3px 6px; vertical-align: top; border-top: 1px dotted #cbb989; }
+  .formula table.symboltable td.sym { font-family: 'Cambria Math', Georgia, serif; font-weight: 700; white-space: nowrap; width: 60pt; color: #6b4e10;}
+
+  .example {
+    background: #eefaf1;
+    border-left: 4px solid #3a9a5c;
+  }
+  .example .box-label { color: #226b3c; }
+
+  .filenote {
+    background: #f2f2f7;
+    border-left: 4px solid #6c6f93;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 9.3pt;
+    color: #33344a;
+  }
+  .filenote code { color: #14213d; }
+
+  .caution {
+    background: #fdf1ea;
+    border-left: 4px solid #c9682b;
+  }
+  .caution .box-label { color: #9c4a15; }
+
+  .finding {
+    background: #f1eefc;
+    border-left: 4px solid #7952c9;
+  }
+  .finding .box-label { color: #4d2f96; }
+
+  code, .mono {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 9.6pt;
+    background: #f0f0f4;
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: #1c2541;
+  }
+  pre {
+    background: #1b1f2a;
+    color: #dbe4ff;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 9.3pt;
+    overflow-x: auto;
+    line-height: 1.5;
+    page-break-inside: avoid;
+  }
+
+  table.data { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; page-break-inside: avoid; }
+  table.data th { background: #14213d; color: white; padding: 6px 9px; text-align: left; font-family: 'Segoe UI', Arial, sans-serif; font-size: 9.5pt;}
+  table.data td { padding: 5px 9px; border-bottom: 1px solid #dbe1ea; }
+  table.data tr:nth-child(even) td { background: #f6f8fb; }
+
+  .tabcard {
+    border: 1px solid #d3dcea;
+    border-radius: 8px;
+    margin: 16px 0;
+    page-break-inside: avoid;
+    overflow: hidden;
+  }
+  .tabcard .tabhead {
+    background: #14213d;
+    color: white;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 11pt;
+    padding: 8px 14px;
+  }
+  .tabcard .tabbody { padding: 10px 16px; }
+  .tabcard .tabbody h5 {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 9.5pt; text-transform: uppercase; letter-spacing: 0.5px;
+    color: #7a5c14; margin: 10px 0 3px 0;
+  }
+
+  .center { text-align: center; }
+  .small { font-size: 9.3pt; color: #555; }
+  .pagebreak { page-break-before: always; }
+  .nobreak { page-break-inside: avoid; }
+
+  a { color: #205295; }
+
+  hr.sep { border: none; border-top: 1px solid #d3dcea; margin: 22px 0; }
+
+  .glossary dt { font-weight: 700; font-family: 'Segoe UI', Arial, sans-serif; color: #14213d; margin-top: 10px; }
+  .glossary dd { margin-left: 0; margin-bottom: 4px; }
+
+  footer.pagefoot { display:none; }
+</style>
+</head>
+<body>
+
+<!-- ============================== COVER ============================== -->
+<div class="cover">
+  <div class="kicker">A Complete, Plain-English Guide</div>
+  <h1>The Options Market-Making &amp;<br>Multi-Model Delta-Hedging Simulator</h1>
+  <h2>Every formula, every workflow, and every dashboard tab explained from first
+  principles &mdash; no finance or programming background assumed.</h2>
+  <div class="pillrow">
+    <span class="pill">Black-Scholes &middot; Heston &middot; Merton</span>
+    <span class="pill">Delta &amp; Delta-Vega Hedging</span>
+    <span class="pill">CVaR &amp; Extreme Value Theory</span>
+    <span class="pill">Bootstrap Statistics</span>
+    <span class="pill">American Options (Trees &amp; PDEs)</span>
+    <span class="pill">Monte Carlo &amp; Variance Reduction</span>
+    <span class="pill">16-Tab Interactive Dashboard</span>
+  </div>
+  <div class="footer-note">
+    Companion document to <span class="mono" style="background:rgba(255,255,255,0.15); color:white;">README.md</span>
+    and <span class="mono" style="background:rgba(255,255,255,0.15); color:white;">report/report.md</span>.
+    This guide assumes you are learning options, hedging, and quantitative risk
+    management for the first time, and walks through the reasoning behind every
+    piece of code in <span class="mono" style="background:rgba(255,255,255,0.15); color:white;">src/</span> and every tab of
+    <span class="mono" style="background:rgba(255,255,255,0.15); color:white;">dashboard.py</span> step by step.
+  </div>
+</div>
+
+<!-- ============================== TABLE OF CONTENTS ============================== -->
+<div class="toc-page">
+<h2>Table of Contents</h2>
+<div class="toc">
+<ol>
+  <li><a href="#part1">How to Read This Guide</a></li>
+  <li><a href="#part2">Foundations &mdash; Options, Hedging, and Why Any of This Matters</a>
+    <ol class="sub">
+      <li><a href="#p2-options">What is an option, really?</a></li>
+      <li><a href="#p2-mm">What does a market maker do?</a></li>
+      <li><a href="#p2-hedge">What does it mean to "hedge"?</a></li>
+      <li><a href="#p2-vol">Volatility, drift, and randomness</a></li>
+      <li><a href="#p2-jumps">Why "jumps" are the whole point of this project</a></li>
+    </ol>
+  </li>
+  <li><a href="#part3">The Three Pricing Models</a>
+    <ol class="sub">
+      <li><a href="#p3-bs">Black-Scholes-Merton: the baseline model</a></li>
+      <li><a href="#p3-greeks">The Greeks: Delta, Gamma, Vega, Theta, Rho</a></li>
+      <li><a href="#p3-heston">Heston: when volatility itself is random</a></li>
+      <li><a href="#p3-cos">The COS method: making Heston fast</a></li>
+      <li><a href="#p3-merton">Merton: when prices can jump</a></li>
+    </ol>
+  </li>
+  <li><a href="#part4">Calibration &mdash; Teaching the Models About the Real World</a></li>
+  <li><a href="#part5">The Hedging Engine &mdash; Simulating a Market Maker's Life</a>
+    <ol class="sub">
+      <li><a href="#p5-replication">The replication argument and the cash account</a></li>
+      <li><a href="#p5-rebalance">Fixed-frequency rebalancing</a></li>
+      <li><a href="#p5-band">Band ("no-transaction region") hedging</a></li>
+      <li><a href="#p5-vega">Delta-Vega hedging with a second option</a></li>
+    </ol>
+  </li>
+  <li><a href="#part6">Measuring Risk &mdash; VaR and CVaR From Scratch</a></li>
+  <li><a href="#part7">How Sure Are We? Bootstrap Statistics and Hypothesis Testing</a></li>
+  <li><a href="#part8">Extreme Value Theory &mdash; Estimating Risks You Haven't Seen Yet</a></li>
+  <li><a href="#part9">American Options &mdash; Binomial Trees and the Crank-Nicolson PDE</a></li>
+  <li><a href="#part10">Monte Carlo Simulation and Variance Reduction</a></li>
+  <li><a href="#part11">P&amp;L Attribution, Stress Testing, and Model Validation</a></li>
+  <li><a href="#part12">The Experiment Pipeline &mdash; A 14-Step Walkthrough</a></li>
+  <li><a href="#part13">Inside the Dashboard &mdash; All 16 Tabs Explained</a></li>
+  <li><a href="#part14">Headline Findings, Glossary, and References</a></li>
+</ol>
+</div>
+</div>
+
+<!-- ============================== PART 1: HOW TO READ ============================== -->
+<div class="part-title-page" id="part1">
+  <div class="part-kicker">Part 1</div>
+  <h1>How to Read This Guide</h1>
+  <div class="part-teaser">A short note on who this is for, and the visual language
+  used throughout &mdash; read this first, it will save you time later.</div>
+</div>
+
+<p>This document explains, from the ground up, a project that answers one question:
+<em>when a market maker sells an option and hedges it, how much extra risk are they
+secretly carrying if the model they use to hedge is too simple for how the real
+market actually behaves?</em> That single question turns out to require a genuinely
+large toolbox &mdash; option pricing theory, statistics, numerical methods, and
+software engineering &mdash; and this guide walks through every piece of that toolbox
+as if you are encountering it for the very first time.</p>
+
+<p>You do not need to know what an option is, what "volatility" means in finance, or
+how to read a formula with Greek letters in it. Every technical term is defined the
+first time it is used, every formula is broken down symbol by symbol, and most ideas
+are illustrated with a small worked example using real numbers before we generalize.
+If you already know some of this material, feel free to skip ahead using the Table
+of Contents &mdash; every internal link is clickable.</p>
+
+<h3 class="subsection">The four boxes you will see throughout this guide</h3>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  This box translates whatever we just introduced into an everyday analogy, with no
+  jargon and no formulas. If you only have time to read one box per topic, read this one.
+</div>
+
+<div class="box formula">
+  <span class="box-label">Formula</span>
+  This box shows the actual mathematical definition, with every single symbol
+  explained immediately underneath it in a small table. Nothing is left as
+  "obvious" &mdash; if a symbol appears, it is defined.
+</div>
+
+<div class="box example">
+  <span class="box-label">Worked Example</span>
+  This box plugs in real, concrete numbers (often the actual numbers this project
+  produced for SPY or Bitcoin) so you can see the formula actually being used, not
+  just stated abstractly.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  This box tells you the exact file (and sometimes function name) in
+  <code>src/</code> where the idea just explained is actually implemented in code,
+  so you can go read the real, working implementation directly if you want to.
+</div>
+
+<div class="box caution">
+  <span class="box-label">Caution / Limitation</span>
+  This box is used whenever a method has a genuine, honestly-acknowledged weakness
+  or a subtlety that is easy to get wrong &mdash; this project treats "what could go
+  wrong with this" as important as "how does this work."
+</div>
+
+<h3 class="subsection">A map of the whole project, in one paragraph</h3>
+
+<p>The project builds three increasingly realistic mathematical descriptions of how a
+stock (or Bitcoin) price moves, "teaches" all three to match the real historical
+behaviour of SPY (a calm U.S. equity index fund) and BTC-USD (a volatile
+cryptocurrency), then simulates a market maker who has sold a call option and must
+hedge it by trading the underlying asset every day for three months. It does this
+thousands of times over, under many different assumptions about the "hedge model"
+the market maker believes in, and measures how bad the worst outcomes are using a
+statistic called <strong>Conditional Value-at-Risk (CVaR)</strong>. On top of that
+core experiment, the project adds an entire practitioner's toolkit around it:
+confidence intervals on every number, a separate theory for extreme/rare outcomes,
+American-style (early-exercisable) options, faster numerical pricing methods,
+day-by-day profit-and-loss explanations, deliberate crash-scenario stress tests, and
+regulatory-style model validation &mdash; and wraps all of it in a 16-tab interactive
+dashboard. This guide covers every one of those pieces, in the order a newcomer
+would most naturally want to learn them.</p>
+
+<!-- ============================== PART 2: FOUNDATIONS ============================== -->
+<div class="part-title-page" id="part2">
+  <div class="part-kicker">Part 2</div>
+  <h1>Foundations &mdash; Options, Hedging, and Why Any of This Matters</h1>
+  <div class="part-teaser">Before any formula, we need to agree on what an option
+  is, who a market maker is, what "hedging" means, and why real markets are harder
+  to model than textbooks suggest.</div>
+</div>
+
+<h2 class="section" id="p2-options">2.1 What Is an Option, Really?</h2>
+
+<p>Imagine a piece of paper (today, just an electronic entry) that gives you the
+<strong>right, but not the obligation,</strong> to buy one share of a stock at a
+price fixed today, at some point in the future. That piece of paper is called a
+<strong>call option</strong>. If it instead gives you the right to <em>sell</em> a
+share at a fixed price, it is called a <strong>put option</strong>.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Think of a call option like a coupon that says "you may buy one share of SPY for
+  exactly $683 any time in the next 3 months, if you want to." If SPY's actual price
+  rises to $700, your coupon is valuable &mdash; you can use it to buy at $683 and
+  immediately be $17 richer. If SPY falls to $650 instead, you simply throw the
+  coupon away; you were never <em>obligated</em> to buy, so you lose nothing beyond
+  what you originally paid for the coupon itself.
+</div>
+
+<p>Four pieces of vocabulary describe every option completely, and they recur on
+every page of this guide:</p>
+
+<table class="data">
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td><strong>Underlying (S)</strong></td><td>The actual asset the option is written on &mdash; in this project, either SPY (an equity index fund) or BTC-USD (Bitcoin priced in US dollars).</td></tr>
+<tr><td><strong>Strike (K)</strong></td><td>The fixed price written into the option &mdash; the price you're allowed to buy (call) or sell (put) at.</td></tr>
+<tr><td><strong>Maturity / Expiry (T)</strong></td><td>The date the option stops existing. This project mostly studies 3-month (0.25-year) options.</td></tr>
+<tr><td><strong>Premium</strong></td><td>The price you pay <em>today</em> to own the option &mdash; this is the number every pricing model in this project ultimately computes.</td></tr>
+</table>
+
+<p>At the maturity date, a call option is worth exactly <span class="mono">max(S<sub>T</sub> &minus; K, 0)</span>
+&mdash; the underlying's final price minus the strike, or zero if that would be
+negative (you'd never "exercise" an option that lets you buy above the current
+market price). This "max(&middot;, 0)" shape is called the option's
+<strong>payoff</strong>, and every pricing model in this project is, at its core, a
+different mathematical way of answering: <em>"given everything we know about how
+the underlying moves between now and maturity, what is the fair price today for a
+payment of max(S<sub>T</sub> &minus; K, 0) that will only be received later?"</em></p>
+
+<h2 class="section" id="p2-mm">2.2 What Does a Market Maker Do?</h2>
+
+<p>A <strong>market maker</strong> is a firm (or trading desk) that stands ready to
+both buy and sell an asset &mdash; in this case, options &mdash; at almost any
+moment, profiting from the small difference between its buy price and sell price
+(the "bid-ask spread"), rather than from betting on which direction the market will
+move. If a client wants to buy a call option, the market maker sells it to them.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Picture a market maker as a shopkeeper for options instead of groceries. A customer
+  walks in and buys a "3-month SPY call option," and the shopkeeper (market maker)
+  hands it over and pockets the premium. But unlike a grocer who has already paid a
+  wholesaler for the item they just sold, the market maker has just taken on a
+  genuine financial <strong>risk</strong>: if SPY rallies hard over the next three
+  months, they may owe the customer a very large payout at expiry, funded only by
+  the (much smaller) premium they collected upfront.
+</div>
+
+<p>This is the central tension the whole project is about: the market maker has
+received a fixed, known amount of cash today (the premium) in exchange for an
+uncertain, possibly very large future liability (the payoff at maturity). They
+cannot just do nothing and hope for the best &mdash; they must actively manage that
+risk. That active risk management is called <strong>hedging</strong>.</p>
+
+<h2 class="section" id="p2-hedge">2.3 What Does It Mean to "Hedge"?</h2>
+
+<p>The key insight, first formalized by Fischer Black and Myron Scholes in 1973
+(and by Robert Merton in the same year), is that a market maker can approximately
+cancel out their option risk by holding a carefully chosen, constantly-adjusted
+quantity of the underlying asset itself alongside the option. This quantity is
+called <strong>Delta</strong>, written &Delta;, and it represents "how many shares
+of the underlying you need to hold, per option sold, so that a $1 move in the stock
+price causes an (approximately) offsetting $1 &times; &Delta; move in your stock
+position, cancelling out the option's own sensitivity to that same $1 move."</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Suppose the option you sold behaves such that a $1 rise in SPY makes the option
+  you owe worth $0.50 more (this "$0.50 per $1" sensitivity is exactly what Delta
+  measures). If you also personally own 0.50 shares of SPY for every option you
+  sold, then that same $1 rise makes your shares worth $0.50 more too. Your gain on
+  the shares offsets your loss on the option (you owe more because you're short the
+  option), leaving your <em>total</em> wealth roughly unchanged no matter which way
+  SPY moves next. That is "Delta hedging" in one sentence: hold &Delta; shares
+  against every option you're short, so small price moves wash out.
+</div>
+
+<p>The word "approximately" is doing a lot of work in that description, for two
+reasons this project spends enormous effort quantifying:</p>
+
+<ol>
+<li><strong>Delta itself changes as the stock price moves</strong> (this
+"Delta-of-Delta" sensitivity is called <strong>Gamma</strong>, &Gamma;, explained
+fully in Part 3), so a hedge that was perfect a moment ago drifts out of alignment
+as time passes and prices move, requiring the market maker to keep <strong>trading
+more shares to "rebalance" the hedge</strong> &mdash; and every trade costs money
+(a transaction cost).</li>
+<li><strong>Delta hedging only protects against small, smooth price moves.</strong>
+If the price suddenly <em>jumps</em> by a large amount between one rebalancing and
+the next (an earnings shock, a crash, a flash crash), the hedge that was correct an
+instant before the jump is now badly wrong, and the market maker suffers a real
+loss that no amount of "hedging more often" can fully prevent if the jump happens
+between two rebalancing dates. This is precisely the "hidden tail risk" this entire
+project sets out to measure.</li>
+</ol>
+
+<h2 class="section" id="p2-vol">2.4 Volatility, Drift, and Randomness</h2>
+
+<p>To price an option, we first need a mathematical description of how the
+underlying price itself might evolve. The simplest possible honest description
+says: over any short interval of time, the price's percentage change is a
+combination of (a) a predictable average trend, called <strong>drift</strong>, and
+(b) a random, unpredictable shock, whose typical size is controlled by a number
+called <strong>volatility</strong>, written &sigma; (the Greek letter "sigma").</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Volatility is just "how much does this asset's price typically wiggle around per
+  year?", expressed as a percentage. SPY's volatility in this project is calibrated
+  at about 15.8% per year &mdash; a calm, typical equity index. Bitcoin's is about
+  45.6% per year &mdash; nearly three times as wiggly, which matches the common
+  experience that crypto prices swing much more wildly than a diversified stock
+  index fund. A HIGHER volatility means a WIDER range of plausible future prices,
+  which (all else equal) makes options on that asset more valuable &mdash; more
+  volatility means more chance of a large favourable move before expiry.
+</div>
+
+<p>The standard mathematical model for "drift plus random shocks" is called
+<strong>Geometric Brownian Motion (GBM)</strong>, and it is the engine underneath
+the Black-Scholes model (Part 3.1). Two extensions of GBM are the heart of this
+project's more advanced models: letting the volatility &sigma; itself be random and
+changing over time (the Heston model, Part 3.3), and letting the price occasionally
+make a sudden, discontinuous jump rather than always moving smoothly (the Merton
+model, Part 3.5).</p>
+
+<h2 class="section" id="p2-jumps">2.5 Why "Jumps" Are the Whole Point of This Project</h2>
+
+<p>Geometric Brownian Motion assumes that if you zoom in on a price chart far
+enough, it always looks smooth and continuous &mdash; the price might move a lot
+over a year, but over one particular <em>second</em>, the move is always tiny.
+Real markets do not obey this rule perfectly. Earnings surprises, geopolitical
+shocks, flash crashes, and (for crypto) exchange failures all cause prices to move
+a large amount <strong>almost instantaneously</strong> &mdash; a "jump" rather than
+a smooth drift-and-wiggle.</p>
+
+<div class="box finding">
+  <span class="box-label">Why This Matters (the project's central question)</span>
+  A market maker who computes their hedge Delta using a model that CANNOT see jumps
+  (Black-Scholes) will have their hedge blindsided every time a real jump occurs
+  &mdash; their carefully rebalanced position was correct for the smooth world their
+  model imagines, but wrong for the jumpy world that actually happened. A market
+  maker who instead computes Delta using a model that DOES account for jump risk
+  (Merton) will have priced and hedged the option slightly differently from day one,
+  in a way that turns out to leave them meaningfully safer when a real jump occurs.
+  <strong>Quantifying exactly how much safer, in dollars and in a rigorous
+  statistical sense, is what this entire project does.</strong>
+</div>
+
+<p>The rest of this guide builds up, piece by piece, everything needed to make that
+comparison rigorous: three pricing models of increasing realism (Part 3), a way to
+"teach" each model what a real asset's jumps and volatility actually look like from
+historical data (Part 4), a simulator that plays out thousands of alternate
+futures and has a market maker hedge through each one (Part 5), a way to measure
+"how bad are the worst outcomes" (Part 6), and an entire apparatus of statistical
+rigor, alternative risk theories, and numerical methods layered on top (Parts 7
+through 11) to make sure the final answer is trustworthy rather than a fluke of one
+particular simulation.</p>
+
+<!-- ============================== PART 3: PRICING MODELS ============================== -->
+<div class="part-title-page" id="part3">
+  <div class="part-kicker">Part 3</div>
+  <h1>The Three Pricing Models</h1>
+  <div class="part-teaser">Black-Scholes, Heston, and Merton &mdash; three
+  increasingly realistic mathematical universes an option can be priced in, each
+  formula broken down piece by piece.</div>
+</div>
+
+<p>Every option pricing model answers the same question &mdash; "what is a fair
+price today for a payment of max(S<sub>T</sub> &minus; K, 0) at time T?" &mdash;
+but each makes a different assumption about how the underlying price S actually
+moves between now and T. This project implements three such models, each one
+relaxing an assumption of the previous one, and validates each against at least one
+independent method before trusting it (a discipline explained more in Part 3.6).</p>
+
+<h2 class="section" id="p3-bs">3.1 Black-Scholes-Merton: The Baseline Model</h2>
+
+<p>Black-Scholes assumes the underlying follows Geometric Brownian Motion (Part
+2.4) with a CONSTANT volatility &sigma; and no jumps &mdash; the simplest honest
+starting point, and the model every other model in this project is checked
+against in the appropriate limiting case.</p>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; The Black-Scholes Call Price</span>
+  <div class="eq">C = S &middot; e<sup>&minus;qT</sup> &middot; N(d<sub>1</sub>) &minus; K &middot; e<sup>&minus;rT</sup> &middot; N(d<sub>2</sub>)</div>
+  <div class="eq" style="font-size:11.5pt;">
+    d<sub>1</sub> = [ln(S/K) + (r &minus; q + &sigma;&sup2;/2)&middot;T] / (&sigma;&middot;&radic;T) &nbsp;&nbsp;&nbsp;&nbsp; d<sub>2</sub> = d<sub>1</sub> &minus; &sigma;&middot;&radic;T
+  </div>
+  <table class="symboltable">
+    <tr><td class="sym">S</td><td>Current price of the underlying (e.g., SPY today).</td></tr>
+    <tr><td class="sym">K</td><td>Strike price written into the option contract.</td></tr>
+    <tr><td class="sym">T</td><td>Time remaining to maturity, measured in years (a 3-month option has T = 0.25).</td></tr>
+    <tr><td class="sym">r</td><td>The risk-free interest rate (what you could earn with zero risk, e.g., from a government bond) &mdash; used to "discount" a future payment back to today's dollars.</td></tr>
+    <tr><td class="sym">q</td><td>The underlying's dividend yield (0 for non-dividend-paying assets like BTC-USD; used later in Part 9 to show WHY early exercise of an American call can become optimal).</td></tr>
+    <tr><td class="sym">&sigma;</td><td>Volatility &mdash; the annualized "typical wiggle size" defined in Part 2.4.</td></tr>
+    <tr><td class="sym">N(x)</td><td>The <strong>cumulative normal distribution function</strong>: literally, "the probability that a random draw from the standard bell curve is less than x." N(0) = 0.50 (a coin-flip chance of being below the average); N(2) &asymp; 0.977 (a random bell-curve draw is very likely below 2 standard deviations above the mean).</td></tr>
+    <tr><td class="sym">ln</td><td>The natural logarithm &mdash; here, ln(S/K) measures how far in percentage terms the current price is from the strike (positive if S&gt;K, negative if S&lt;K).</td></tr>
+  </table>
+</div>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  N(d<sub>2</sub>) turns out to equal (under this model) the actual probability
+  that the option will be exercised at all (that S<sub>T</sub> ends up above K).
+  N(d<sub>1</sub>) is a closely related, slightly different probability that shows
+  up because we also have to account for HOW FAR above K the price ends up, not
+  just whether it does. The whole formula can be read as: <em>"the current price of
+  the underlying, weighted by one probability-like quantity, minus the discounted
+  strike, weighted by the true probability of exercise."</em> Both terms are
+  discounted/probability-weighted versions of "what you'd pay/receive if you knew
+  for certain the option would be exercised."
+</div>
+
+<div class="box example">
+  <span class="box-label">Worked Example</span>
+  Take Hull's classic textbook numbers: S = $42, K = $40, T = 0.5 years, r = 10%,
+  &sigma; = 20% (this exact example is used as this project's own sanity check in
+  <code>black_scholes.py</code>). Plugging in: d<sub>1</sub> &asymp; 0.7693,
+  d<sub>2</sub> &asymp; 0.6278, N(d<sub>1</sub>) &asymp; 0.7791, N(d<sub>2</sub>) &asymp; 0.7349.
+  The call price comes out to C = 42(0.7791) &minus; 40&middot;e<sup>&minus;0.05</sup>(0.7349) &asymp; <strong>$4.76</strong>
+  &mdash; matching the textbook to the penny, and matching this project's own
+  automated test in <code>tests/test_core_functions.py</code>.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/black_scholes.py</code>, function <code>bs_price()</code>. Validated
+  against Hull's textbook benchmark and against put-call parity (a model-free
+  arithmetic identity: Call &minus; Put must always equal S &minus; K&middot;e<sup>&minus;rT</sup>,
+  a relationship that holds regardless of which pricing model you use, because it
+  follows purely from the payoffs, not from any assumption about how S moves).
+</div>
+
+<h2 class="section" id="p3-greeks">3.2 The Greeks: Measuring Sensitivity</h2>
+
+<p>The "Greeks" are a family of sensitivities &mdash; each one answers "if
+<em>this one thing</em> changes by a tiny amount, how much does the option's price
+change?" They are called Greeks because most (though not all) are named after
+Greek letters. They matter because hedging (Part 2.3) is entirely about knowing and
+managing these sensitivities.</p>
+
+<table class="data">
+<tr><th>Greek</th><th>Measures sensitivity of price to&hellip;</th><th>Plain-English meaning</th></tr>
+<tr><td><strong>Delta (&Delta;)</strong></td><td>The underlying price S</td><td>How many shares of the underlying to hold to hedge one option (Part 2.3).</td></tr>
+<tr><td><strong>Gamma (&Gamma;)</strong></td><td>Delta itself, as S changes</td><td>How fast your hedge goes stale as the price moves &mdash; high Gamma means you need to rebalance more often.</td></tr>
+<tr><td><strong>Vega</strong></td><td>Volatility &sigma;</td><td>How much the option's price changes if the market's expectation of future wiggliness changes &mdash; not hedged at all by trading the underlying (Part 5.4 explains why this matters).</td></tr>
+<tr><td><strong>Theta (&Theta;)</strong></td><td>Time itself (as T shrinks)</td><td>"Time decay" &mdash; how much value an option loses each day purely from having one fewer day left to be profitable, holding everything else fixed.</td></tr>
+<tr><td><strong>Rho (&rho;)</strong></td><td>The interest rate r</td><td>How much the price changes if interest rates move &mdash; a minor effect for short-dated options, included here for completeness.</td></tr>
+</table>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; Delta and Gamma for a Call (Black-Scholes)</span>
+  <div class="eq">&Delta; = e<sup>&minus;qT</sup>&middot;N(d<sub>1</sub>) &nbsp;&nbsp;&nbsp;&nbsp; &Gamma; = e<sup>&minus;qT</sup>&middot;N&prime;(d<sub>1</sub>) / (S&middot;&sigma;&middot;&radic;T)</div>
+  <table class="symboltable">
+    <tr><td class="sym">N&prime;(x)</td><td>The standard normal <em>probability density</em> (the height of the bell curve at x) &mdash; not to be confused with N(x), the area/probability under the curve up to x.</td></tr>
+  </table>
+</div>
+
+<div class="box example">
+  <span class="box-label">Worked Example</span>
+  In the Hull example above, Delta &asymp; 0.779: for every option sold, the market
+  maker holds about 0.78 shares of the underlying. If SPY were the underlying and
+  the market maker sold 100 call options (a contract for 100 shares each, so
+  10,000 "option-shares" of exposure), they would hold approximately 7,790 actual
+  shares of SPY to be Delta-neutral at that instant.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/black_scholes.py</code>, function <code>bs_greeks()</code>, returning a
+  dictionary with all five Greeks at once. For the Heston and Merton models
+  (below), most Greeks have no clean closed-form formula, so they are instead
+  computed by <strong>finite differences</strong>: nudge one input (say S) up by a
+  tiny amount, nudge it down by the same tiny amount, price the option both times,
+  and divide the difference in price by the (tiny) difference in the input &mdash;
+  literally re-deriving the definition of a derivative/slope numerically, without
+  needing an exact formula.
+</div>
+
+<h2 class="section" id="p3-heston">3.3 Heston: When Volatility Itself Is Random</h2>
+
+<p>Black-Scholes assumes &sigma; is one fixed number for the whole life of the
+option. In reality, volatility itself rises and falls over time &mdash; it tends to
+spike during crises and settle back down during calm periods, a phenomenon called
+<strong>mean reversion</strong>. Steven Heston's 1993 model captures this by making
+the <em>variance</em> (volatility squared, written v<sub>t</sub>) its own separate
+random process, correlated with the price process.</p>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; The Heston Model's Two Coupled Equations</span>
+  <div class="eq">dS<sub>t</sub> = r&middot;S<sub>t</sub>&middot;dt + &radic;v<sub>t</sub>&middot;S<sub>t</sub>&middot;dW<sub>t</sub><sup>S</sup></div>
+  <div class="eq">dv<sub>t</sub> = &kappa;(&theta; &minus; v<sub>t</sub>)&middot;dt + &xi;&radic;v<sub>t</sub>&middot;dW<sub>t</sub><sup>v</sup></div>
+  <div class="eq" style="font-size:11pt;">corr(dW<sub>t</sub><sup>S</sup>, dW<sub>t</sub><sup>v</sup>) = &rho;</div>
+  <table class="symboltable">
+    <tr><td class="sym">v<sub>t</sub></td><td>The instantaneous variance at time t (so &radic;v<sub>t</sub> is the instantaneous volatility &mdash; it now CHANGES over time instead of being one fixed &sigma;).</td></tr>
+    <tr><td class="sym">&kappa;</td><td>("kappa") <strong>Mean-reversion speed</strong>: how quickly variance gets pulled back toward its long-run average after a shock. A bigger &kappa; means volatility spikes fade faster.</td></tr>
+    <tr><td class="sym">&theta;</td><td>("theta", reused here as a Heston parameter, not the Theta Greek) The <strong>long-run average variance</strong> that v<sub>t</sub> keeps drifting back toward.</td></tr>
+    <tr><td class="sym">&xi;</td><td>("xi") <strong>Vol-of-vol</strong>: how random and jumpy the VARIANCE process itself is. If &xi;=0, variance would move in a perfectly predictable straight line toward &theta; &mdash; realistically, &xi;&gt;0 always.</td></tr>
+    <tr><td class="sym">&rho;</td><td>("rho") The <strong>correlation</strong> between price shocks and variance shocks. Empirically almost always negative (the "leverage effect"): when prices fall, fear rises, and volatility tends to spike at the same time.</td></tr>
+    <tr><td class="sym">dW<sup>S</sup>, dW<sup>v</sup></td><td>Two random shocks (technically, increments of two correlated "Brownian motions") &mdash; the mathematical device that injects randomness into each equation, analogous to the single random shock in Geometric Brownian Motion but now there are two, correlated with each other by &rho;.</td></tr>
+  </table>
+</div>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Heston has two "moving parts" instead of one: the price itself, and the CURRENT
+  LEVEL of volatility, which is allowed to wander around, spike, and settle back
+  down on its own. This is a much better match for reality, where a quiet market can
+  become turbulent (variance shoots up) and then calm back down over subsequent
+  weeks &mdash; something Black-Scholes' single fixed &sigma; can never represent.
+</div>
+
+<h4 class="subsub">Why Heston has no simple price formula, and what a "characteristic function" is</h4>
+
+<p>Black-Scholes has a clean formula because the underlying's final log-price
+follows an ordinary bell curve (Normal distribution), whose probabilities N(x) are
+well understood and tabulated. Under Heston, the final log-price's distribution is
+much more complicated and has no simple bell-curve shape &mdash; but it turns out to
+have a known <strong>characteristic function</strong>: a mathematical fingerprint of
+a probability distribution, built from a Fourier transform, that fully describes the
+distribution even when its ordinary probability formula is intractable.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Think of the characteristic function as a distribution's "barcode": you can't
+  necessarily read off "the probability of X being below 5" just by looking at the
+  barcode directly, but there is a well-known mathematical scanner (a formula called
+  the <strong>Gil-Pelaez inversion</strong>) that takes the barcode as input and
+  computes any probability you want as output, via an integral (a continuous sum).
+  This project's <code>heston.py</code> computes that "barcode" in closed form
+  (a genuinely nasty-looking but entirely mechanical formula involving complex
+  numbers), then numerically evaluates the "scanner" integral using
+  <code>scipy.integrate.quad</code> to get an actual option price out the other end.
+</div>
+
+<div class="box caution">
+  <span class="box-label">Caution / Limitation</span>
+  That "scanner" integral (<code>scipy.integrate.quad</code>) only works on ONE
+  price at a time &mdash; it fundamentally cannot be handed a whole array of
+  thousands of prices at once the way Black-Scholes' simple formula can. This made
+  the original Heston pricer roughly 1,000&times; slower than Black-Scholes/Merton
+  for large-scale simulation, and is the exact limitation Part 3.4 (the COS method)
+  was built to remove.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/heston.py</code>: <code>_heston_char_func()</code> computes the
+  "barcode" (using the numerically-stable "Little Trap" formulation of Albrecher et
+  al., 2007, chosen specifically because the textbook 1993 version of this formula
+  has known numerical blow-up issues for long maturities). <code>heston_price()</code>
+  runs the "scanner" integral. Validated against independent Monte Carlo simulation
+  (Part 10 explains what that is) of the same two equations above, and checked to
+  match Black-Scholes exactly in the limiting case &xi;&rarr;0 (no vol-of-vol means
+  variance is effectively constant, which is exactly Black-Scholes' assumption).
+</div>
+
+<h2 class="section" id="p3-cos">3.4 The COS Method: Making Heston Fast</h2>
+
+<p>The Fourier-Cosine (COS) method, published by Fang &amp; Oosterlee in 2008, is a
+second, mathematically different way to use that same "barcode" (characteristic
+function) to get an option price &mdash; one that turns out to be both highly
+accurate AND fully vectorizable (able to price many spot prices at once, the way
+Black-Scholes can).</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Instead of computing one exact "scanner" integral per price (slow, one at a time),
+  the COS method notices that ANY reasonably smooth function (including the payoff
+  of an option) can be approximated extremely accurately as a sum of a few hundred
+  cosine waves of different frequencies &mdash; the exact same idea used in audio
+  compression, where a sound wave is approximated as a sum of pure tones. Once you
+  know how much of each cosine "frequency" is present in both the probability
+  distribution (from the characteristic function) and the payoff, pricing an option
+  becomes a simple, finite weighted sum instead of an infinite integral &mdash; and
+  because the expensive part (evaluating the characteristic function at each of a
+  few hundred frequencies) does not depend on which specific spot price you plug in
+  afterward, it can be computed ONCE and reused for thousands of different spot
+  prices simultaneously using ordinary array arithmetic.
+</div>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; The COS Pricing Sum</span>
+  <div class="eq">Price &asymp; e<sup>&minus;rT</sup> &middot; &Sigma;<sub>k=0</sub><sup>N&minus;1</sup> &prime; Re[ &phi;(k&pi;/(b&minus;a)) &middot; e<sup>&minus;ik&pi;a/(b&minus;a)</sup> ] &middot; V<sub>k</sub></div>
+  <table class="symboltable">
+    <tr><td class="sym">&phi;(&middot;)</td><td>The characteristic function ("barcode") from Part 3.3, evaluated at a handful of specific frequencies instead of integrated continuously.</td></tr>
+    <tr><td class="sym">V<sub>k</sub></td><td>The "cosine content" of the option's payoff at frequency k &mdash; a closed-form expression, since the payoff (a simple kinked straight-line shape) has an exactly-known cosine decomposition.</td></tr>
+    <tr><td class="sym">[a, b]</td><td>A truncation range wide enough to contain essentially all of the probability mass of the underlying's future log-price &mdash; chosen generously (about 12 standard deviations wide in this project) so the approximation is, in practice, indistinguishable from exact.</td></tr>
+    <tr><td class="sym">N</td><td>Number of cosine terms used (256 in this project) &mdash; more terms means more accuracy, with rapidly diminishing need for more once N is in the low hundreds.</td></tr>
+    <tr><td class="sym">Re[&middot;]</td><td>"Real part of" &mdash; the characteristic function briefly involves complex numbers internally, but the final price is always a plain real number.</td></tr>
+  </table>
+</div>
+
+<div class="box finding">
+  <span class="box-label">The Payoff of This Upgrade</span>
+  Cross-validated against the original "scanner integral" pricer across 20 different
+  strike/maturity combinations (agreement to within 0.03%), confirmed to still
+  satisfy put-call parity exactly, and benchmarked at roughly <strong>180 times
+  faster</strong> when pricing 500 different spot prices at once. This upgrade is
+  what let the project's Heston-related studies run at the SAME 8,000-path,
+  daily-rebalancing scale as the other two models, instead of a 150-path
+  approximation to it (see Parts 12 and 13 for where this shows up).
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/heston.py</code>, functions <code>heston_price_cos()</code> (one price
+  at a time) and <code>heston_price_cos_batch()</code> (many spot prices at once,
+  the version actually used for large-scale simulation). The batch version exploits
+  a mathematical fact called <strong>scale invariance</strong>: Heston's equations
+  only care about the underlying's PERCENTAGE moves, not its absolute price level,
+  so the expensive "evaluate the barcode at 256 frequencies" step can be done once
+  using a reference price of $1 and reused, unchanged, for every one of thousands of
+  different actual spot prices in a batch.
+</div>
+
+<h2 class="section" id="p3-merton">3.5 Merton: When Prices Can Jump</h2>
+
+<p>Robert Merton's 1976 model takes a different extension of Black-Scholes: instead
+of letting volatility itself be random (Heston's approach), it keeps volatility
+fixed but adds the possibility of sudden, discontinuous <strong>jumps</strong> in
+the price &mdash; directly modelling the crash risk described in Part 2.5.</p>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; The Merton Jump-Diffusion Equation</span>
+  <div class="eq">dS<sub>t</sub>/S<sub>t</sub> = (r &minus; &lambda;k &minus; &sigma;&sup2;/2)&middot;dt + &sigma;&middot;dW<sub>t</sub> + dJ<sub>t</sub></div>
+  <table class="symboltable">
+    <tr><td class="sym">&lambda;</td><td>("lambda") The <strong>jump intensity</strong>: the expected NUMBER of jumps per year. This project calibrates &lambda; &asymp; 3.67/year for SPY and &asymp; 4.26/year for BTC-USD &mdash; i.e., a jump roughly every 3-4 months on average, for both.</td></tr>
+    <tr><td class="sym">J<sub>t</sub></td><td>A <strong>compound Poisson process</strong>: jumps arrive at random times (governed by &lambda;), and each jump's SIZE is itself random, drawn from its own distribution (below).</td></tr>
+    <tr><td class="sym">k</td><td>The expected PERCENTAGE size of a jump, k = E[e<sup>jump</sup>&minus;1]. Subtracting &lambda;k from the drift is a bookkeeping correction (the "compensator") that keeps the AVERAGE growth rate of the stock equal to r even after jumps are added &mdash; without it, adding jumps would silently bias the average return.</td></tr>
+  </table>
+  Each individual jump's log-size is drawn from its own (separate) bell curve:
+  <div class="eq" style="font-size:11pt;">ln(1 + Jump) ~ Normal(&mu;<sub>J</sub>, &sigma;<sub>J</sub>&sup2;)</div>
+  <table class="symboltable">
+    <tr><td class="sym">&mu;<sub>J</sub></td><td>The average log-size of a jump &mdash; calibrated strongly NEGATIVE for both assets (about &minus;1.1% for SPY, &minus;3.4% for BTC-USD), matching the well-documented tendency for crashes to be larger and more sudden than rallies.</td></tr>
+    <tr><td class="sym">&sigma;<sub>J</sub></td><td>How much jump sizes themselves vary from one jump to the next.</td></tr>
+  </table>
+</div>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Between jumps, Merton's price moves exactly like ordinary Black-Scholes (smooth
+  drift plus wiggle). But every so often &mdash; on average &lambda; times per year
+  &mdash; a jump occurs: the price is suddenly multiplied by a random factor,
+  usually a modest downward jolt, occasionally a larger one, representing a crash,
+  an earnings shock, or (for crypto) an exchange failure. A market maker hedging
+  with Black-Scholes Delta has no way to anticipate or price this possibility at
+  all; a market maker using Merton Delta has, from day one, priced in a small
+  insurance premium against exactly this risk, and adjusts their hedge accordingly.
+</div>
+
+<h4 class="subsub">How Merton is actually priced: a weighted sum of Black-Scholes prices</h4>
+
+<p>Remarkably, Merton found a quasi-closed-form solution: the price is simply a
+weighted AVERAGE of ordinary Black-Scholes prices, one for every possible NUMBER of
+jumps (0, 1, 2, 3, &hellip;) that could occur before maturity, weighted by the
+probability of exactly that many jumps occurring (a Poisson probability).</p>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; The Merton Price</span>
+  <div class="eq">Price = &Sigma;<sub>n=0</sub><sup>&infin;</sup> &nbsp; [ e<sup>&minus;&lambda;&prime;T</sup>(&lambda;&prime;T)<sup>n</sup> / n! ] &middot; BS<sub>price</sub>(S, K, T, r<sub>n</sub>, &sigma;<sub>n</sub>)</div>
+  <table class="symboltable">
+    <tr><td class="sym">n</td><td>A specific, fixed number of jumps (0, 1, 2, &hellip;) &mdash; each term in the sum asks "IF exactly n jumps happen, what is the Black-Scholes price, and how likely is exactly n jumps?"</td></tr>
+    <tr><td class="sym">e<sup>&minus;&lambda;&prime;T</sup>(&lambda;&prime;T)<sup>n</sup>/n!</td><td>The <strong>Poisson probability</strong> of exactly n jumps occurring in the T years remaining &mdash; a standard formula from probability theory for "rare events happening a specific number of times."</td></tr>
+    <tr><td class="sym">&sigma;<sub>n</sub></td><td>An adjusted volatility for the n-jump scenario: &radic;(&sigma;&sup2; + n&middot;&sigma;<sub>J</sub>&sup2;/T) &mdash; more jumps means more total randomness, which this formula folds into an "effective" volatility for that scenario.</td></tr>
+  </table>
+  In practice the infinite sum is cut off after about 50 terms, since the Poisson
+  probability of, say, 30+ jumps in a 3-month option is astronomically small and
+  contributes nothing measurable to the total.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/merton.py</code>, function <code>merton_price()</code>, which literally
+  loops over n and calls <code>black_scholes.bs_price()</code> inside the loop
+  &mdash; a clean illustration of how a more advanced model can REUSE a simpler
+  one's already-validated code rather than re-deriving everything from scratch.
+  Validated against independent Monte Carlo simulation of the jump-diffusion
+  equation above, and checked to reduce exactly to plain Black-Scholes as
+  &lambda;&rarr;0 (no jumps at all).
+</div>
+
+<h2 class="section" id="p3-validate">3.6 "Never Trust a Single Untested Pricer"</h2>
+
+<p>A theme repeated throughout this project: every pricing formula is checked
+against at least one INDEPENDENT method before being trusted for the main
+experiment. The three most common independent checks used are:</p>
+
+<ol>
+<li><strong>Textbook / known-benchmark matching</strong> &mdash; comparing against a published, widely-cited numeric example (used for Black-Scholes).</li>
+<li><strong>Monte Carlo cross-validation</strong> &mdash; simulating the SAME underlying equation thousands of times with computer-generated randomness and averaging the resulting payoffs (fully explained in Part 10), then checking the closed-form/semi-closed-form price agrees within statistical noise (used for Heston and Merton).</li>
+<li><strong>Nested-model reduction</strong> &mdash; checking that a more complex model, with its "extra" parameter set to an extreme value (no vol-of-vol, no jumps), collapses EXACTLY back onto the simpler model it was built to extend.</li>
+</ol>
+
+<p>This discipline matters because a subtle coding error in a pricing formula can
+produce numbers that look plausible but are simply wrong &mdash; and since this
+project's entire conclusion rests on comparing dollar amounts of risk across
+models, an unvalidated pricer would quietly invalidate everything built on top of it.</p>
+
+<!-- ============================== PART 4: CALIBRATION ============================== -->
+<div class="part-title-page" id="part4">
+  <div class="part-kicker">Part 4</div>
+  <h1>Calibration &mdash; Teaching the Models About the Real World</h1>
+  <div class="part-teaser">A model is just an empty formula until its parameters
+  (&sigma;, &lambda;, &kappa;, &theta;, &xi;, &rho;&hellip;) are pinned down by real
+  data. This part explains how, and why the specific choice made here matters.</div>
+</div>
+
+<p>Every parameter introduced in Part 3 &mdash; &sigma;, &lambda;, &mu;<sub>J</sub>,
+&sigma;<sub>J</sub> for Merton; &kappa;, &theta;, &xi;, &rho;, v<sub>0</sub> for
+Heston &mdash; is just a placeholder until it is given an actual number.
+<strong>Calibration</strong> is the process of choosing those numbers so the model
+is consistent with a particular real asset (SPY or BTC-USD, in this project).</p>
+
+<h2 class="section" id="p4-measures">4.1 Two Fundamentally Different Ways to Calibrate</h2>
+
+<p>There are two distinct, philosophically different sources of data you could use
+to calibrate an option-pricing model, and confusing them is one of the most common
+real mistakes in quantitative finance:</p>
+
+<table class="data">
+<tr><th>Approach</th><th>Uses&hellip;</th><th>Answers the question&hellip;</th></tr>
+<tr><td><strong>Historical (P-measure)</strong></td><td>The asset's own past price history (what actually happened).</td><td>"What would a model consistent with how this asset has behaved <em>in the past</em> say?"</td></tr>
+<tr><td><strong>Implied (Q-measure)</strong></td><td>Current, live prices of traded options on that asset (what the market is willing to pay <em>right now</em>).</td><td>"What is the market currently pricing risk at, regardless of what happened historically?"</td></tr>
+</table>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Historical calibration is like predicting tomorrow's weather from a detailed
+  record of the last eight years of weather in your city. Implied calibration is
+  like reading today's insurance premiums for storm damage and reverse-engineering
+  what the insurance company must currently believe the odds of a storm are. Both
+  are legitimate ways to estimate risk, but they can disagree &mdash; insurance
+  premiums might be elevated right now because of a recent scary news story, even if
+  the long-run historical storm frequency hasn't actually changed. Mixing the two up
+  (using a historical estimate but describing it as "what the market thinks") is a
+  well-known and important mistake to avoid.
+</div>
+
+<div class="box caution">
+  <span class="box-label">Caution / Limitation (explicitly acknowledged in this project)</span>
+  This project uses <strong>historical (P-measure) calibration exclusively</strong>
+  for its main pipeline, because genuinely free, long-history options-chain data
+  (needed for implied/Q-measure calibration) essentially does not exist for public
+  download. This is a real, clearly weaker substitute for implied calibration, and
+  is called out explicitly rather than glossed over. The dashboard's <strong>Live
+  Market Check</strong> tab (Part 13.3) partially closes this gap by comparing the
+  historical model's smile against SPY's actual, live, currently-traded options
+  chain &mdash; a genuine, if narrower and non-historical, Q-measure comparison.
+</div>
+
+<h2 class="section" id="p4-merton-cal">4.2 Calibrating Merton: Finding the Jumps in a Return Series</h2>
+
+<p>To calibrate Merton's four parameters (&sigma;, &lambda;, &mu;<sub>J</sub>,
+&sigma;<sub>J</sub>) from a plain list of an asset's daily percentage returns, this
+project uses a simple, transparent <strong>threshold-based</strong> procedure:</p>
+
+<ol>
+<li><strong>Flag "jump days."</strong> Compute the standard deviation of ALL daily
+returns, then flag any day whose return is more than 3 standard deviations away
+from the average as a "jump."</li>
+<li><strong>Estimate the jump intensity &lambda;.</strong> Count how many days were
+flagged, divide by the number of YEARS of data available. If 29 jumps were flagged
+over 7.9 years of SPY data, &lambda; = 29/7.9 &asymp; 3.67 jumps per year.</li>
+<li><strong>Estimate the jump-size distribution.</strong> Take the AVERAGE and
+STANDARD DEVIATION of just the flagged jump-day returns &mdash; these become
+&mu;<sub>J</sub> and &sigma;<sub>J</sub> directly.</li>
+<li><strong>Estimate the diffusive volatility &sigma;.</strong> Use the variance of
+the REMAINING (non-jump) days for the ordinary Black-Scholes-style volatility,
+since the jump days' extra variance has already been accounted for separately.</li>
+</ol>
+
+<div class="box example">
+  <span class="box-label">Worked Example &mdash; Actual Calibrated Numbers From This Project</span>
+  <table class="data">
+    <tr><th>Asset</th><th>&sigma; (diffusive vol)</th><th>&lambda; (jumps/year)</th><th>&mu;<sub>J</sub></th><th>&sigma;<sub>J</sub></th></tr>
+    <tr><td>SPY (calm equity)</td><td>15.8%</td><td>3.67</td><td>&minus;1.08%</td><td>6.14%</td></tr>
+    <tr><td>BTC-USD (volatile crypto)</td><td>45.6%</td><td>4.26</td><td>&minus;3.36%</td><td>13.76%</td></tr>
+  </table>
+  Two things jump out (no pun intended): Bitcoin's diffusive volatility is nearly
+  3&times; SPY's even BEFORE considering jumps at all, and its jump-size distribution
+  is both larger in magnitude and more negatively skewed &mdash; both consistent
+  with the well-documented reality that crypto markets crash harder and more often
+  than a diversified equity index.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/calibration.py</code>, function <code>calibrate_merton()</code>.
+  Validated with a "recovery test": simulate a KNOWN set of parameters using
+  <code>merton_simulate_paths()</code>, calibrate on the simulated data, and confirm
+  the recovered numbers land in a reasonable ballpark of the true, known values that
+  generated the data in the first place &mdash; you cannot expect exact recovery
+  from any single finite sample, so this is a sanity check, not a proof.
+</div>
+
+<h2 class="section" id="p4-heston-cal">4.3 Calibrating Heston: Reading Volatility's Own History</h2>
+
+<p>Heston's five parameters are calibrated from the asset's <strong>realized
+volatility</strong> &mdash; a rolling, backward-looking measure of "how much did
+this asset actually wiggle over the last 21 trading days" (about one calendar
+month), computed directly from historical returns.</p>
+
+<table class="data">
+<tr><th>Parameter</th><th>How it is estimated</th></tr>
+<tr><td>v<sub>0</sub></td><td>The most RECENT 21-day realized variance &mdash; "how volatile has this asset been lately?"</td></tr>
+<tr><td>&theta;</td><td>The LONG-RUN AVERAGE realized variance across the entire history &mdash; "what's normal for this asset?"</td></tr>
+<tr><td>&kappa;</td><td>Estimated via a simple regression (see below) of day-to-day CHANGES in variance against how far variance currently is from &theta;.</td></tr>
+<tr><td>&xi;</td><td>The leftover, unexplained "noise" in that same regression &mdash; how much variance moves that ISN'T explained by simple mean-reversion.</td></tr>
+<tr><td>&rho;</td><td>The plain statistical correlation between daily returns and daily CHANGES in realized variance.</td></tr>
+</table>
+
+<div class="box plain">
+  <span class="box-label">Plain English &mdash; what is a "regression" doing here?</span>
+  A regression is simply a best-fit straight line through a scatter of points. Here,
+  each point plots "how far today's variance is from the long-run average &theta;"
+  (horizontal axis) against "how much variance actually changed from today to
+  tomorrow" (vertical axis). If variance genuinely mean-reverts, this scatter should
+  show a clear pattern: when variance is well above &theta;, it tends to fall the
+  next day; when it's well below &theta;, it tends to rise. The STEEPNESS of the
+  best-fit line through that scatter is exactly &kappa; (how strongly and quickly
+  variance gets pulled back), and how SCATTERED the points are around that line
+  (i.e., how much of the day-to-day change ISN'T explained by the line) becomes
+  &xi;, the vol-of-vol.
+</div>
+
+<div class="box example">
+  <span class="box-label">Worked Example &mdash; Actual Calibrated Numbers From This Project</span>
+  <table class="data">
+    <tr><th>Asset</th><th>&kappa;</th><th>&theta;</th></tr>
+    <tr><td>SPY (calm equity)</td><td>1.92</td><td>0.0387 (&radic;&theta; &asymp; 19.7% long-run vol)</td></tr>
+    <tr><td>BTC-USD (volatile crypto)</td><td>6.87</td><td>0.2921 (&radic;&theta; &asymp; 54.0% long-run vol)</td></tr>
+  </table>
+  BTC-USD's much higher &kappa; means its volatility spikes fade back to normal
+  roughly 3.6&times; faster than SPY's &mdash; consistent with crypto markets being
+  prone to sharp, short-lived volatility spikes that resolve quickly, rather than
+  the more gradual volatility regimes typical of equity indices.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/calibration.py</code>, function <code>calibrate_heston()</code>. Also
+  validated with a recovery test on simulated data with known, pre-chosen
+  parameters (via <code>heston_simulate_paths()</code>).
+</div>
+
+<!-- ============================== PART 5: HEDGING ENGINE ============================== -->
+<div class="part-title-page" id="part5">
+  <div class="part-kicker">Part 5</div>
+  <h1>The Hedging Engine &mdash; Simulating a Market Maker's Life</h1>
+  <div class="part-teaser">Given a pricing model, how do we actually simulate a
+  market maker hedging day by day, and keep honest track of every dollar?</div>
+</div>
+
+<h2 class="section" id="p5-replication">5.1 The Replication Argument and the Cash Account</h2>
+
+<p>The simulator in this project (<code>hedging_engine.py</code>) plays out, one
+day at a time, exactly what a real market maker would do: receive a premium, buy
+some shares, and then keep adjusting that share position every day until the option
+expires. To track whether this strategy actually worked, it keeps a simple
+<strong>cash account</strong> &mdash; a running ledger of every dollar in and out.</p>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; The Cash Account, Day by Day</span>
+  <p style="margin:4px 0;"><strong>Day 0 (option sold):</strong></p>
+  <div class="eq" style="font-size:11pt;">cash<sub>0</sub> = V<sub>0</sub> &minus; &Delta;<sub>0</sub>&middot;S<sub>0</sub></div>
+  <p style="margin:4px 0;"><strong>Every later day t (rebalancing):</strong></p>
+  <div class="eq" style="font-size:11pt;">cash<sub>t</sub> = cash<sub>t&minus;1</sub>&middot;e<sup>r&middot;dt</sup> &minus; (&Delta;<sub>t</sub>&minus;&Delta;<sub>t&minus;1</sub>)&middot;S<sub>t</sub> &minus; cost<sub>t</sub></div>
+  <p style="margin:4px 0;"><strong>At maturity T (settlement):</strong></p>
+  <div class="eq" style="font-size:11pt;">Hedging P&amp;L = cash<sub>T</sub> + &Delta;<sub>T</sub>&middot;S<sub>T</sub> &minus; payoff</div>
+  <table class="symboltable">
+    <tr><td class="sym">V<sub>0</sub></td><td>The option's premium, received on day 0 in exchange for selling (going "short") the option.</td></tr>
+    <tr><td class="sym">&Delta;<sub>t</sub>&middot;S<sub>t</sub></td><td>The cost of buying &Delta;<sub>t</sub> shares at today's price &mdash; funded out of the cash account.</td></tr>
+    <tr><td class="sym">e<sup>r&middot;dt</sup></td><td>Cash sitting in the account between rebalances earns the risk-free interest rate r &mdash; it doesn't just sit idle.</td></tr>
+    <tr><td class="sym">cost<sub>t</sub></td><td>The transaction cost paid to trade shares today &mdash; modelled as a small percentage (5 basis points = 0.05%) of the dollar value traded, a realistic proxy for a bid-ask spread.</td></tr>
+    <tr><td class="sym">payoff</td><td>What the market maker OWES the option buyer at expiry: max(S<sub>T</sub>&minus;K, 0) for a call.</td></tr>
+  </table>
+</div>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Every day, three things happen: (1) whatever cash is sitting in the account earns
+  a little interest, (2) the market maker checks whether their current share
+  holding still matches the option's current Delta, and if not, buys or sells just
+  enough shares to fix that (paying a small trading fee either way), and (3) at the
+  very end, the market maker sells whatever shares they're still holding, pays out
+  the option's actual payoff to the buyer, and whatever cash is left over (positive
+  or negative) IS the hedging profit or loss for that simulated path. If Delta
+  hedging worked perfectly, this final number would be exactly zero every time
+  &mdash; in practice, it is a small random number that averages close to zero under
+  a MATCHING model, and a much more variable, sometimes very negative number when
+  the hedge model doesn't match how the world actually moved (Part 6 explains how
+  this is measured rigorously).
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/hedging_engine.py</code>, function <code>simulate_delta_hedge()</code>
+  (one price path at a time) and <code>simulate_delta_hedge_batch()</code> (an
+  entire array of thousands of price paths simultaneously, for speed &mdash;
+  validated to produce EXACTLY the same numbers as the one-path-at-a-time version,
+  just about 1,000&times; faster, since it processes every path for one day at once
+  instead of every day for one path at once).
+</div>
+
+<h2 class="section" id="p5-rebalance">5.2 Fixed-Frequency Rebalancing and the Cost/Risk Tradeoff</h2>
+
+<p>How OFTEN should the market maker check and adjust their Delta? Rebalancing
+every single day gives the tightest possible hedge (Delta almost never drifts far
+from correct), but generates a transaction cost every single day. Rebalancing only
+once a week is cheaper, but lets Delta drift further out of alignment between
+adjustments, increasing risk.</p>
+
+<div class="box finding">
+  <span class="box-label">What This Project Found</span>
+  Sweeping the rebalancing frequency from daily out to monthly, holding everything
+  else fixed, confirms the textbook tradeoff directly: CVaR of hedging loss (Part 6)
+  rises monotonically as rebalancing becomes less frequent &mdash; +15.5% from daily
+  to monthly for SPY, and an even steeper +52.6% for BTC-USD, whose higher Gamma
+  (faster-changing Delta) makes it much more sensitive to going a long time between
+  adjustments.
+</div>
+
+<h2 class="section" id="p5-band">5.3 Band ("No-Transaction Region") Hedging: A Smarter Schedule</h2>
+
+<p>Real trading desks rarely rebalance on a rigid calendar. A more realistic
+practical rule &mdash; going back to Whalley &amp; Wilmott (1993) &mdash; is to
+MONITOR Delta continuously, but only actually TRADE once it has drifted more than
+some tolerance "band" away from the currently-held position.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Imagine a thermostat with a target temperature and a small tolerance window
+  (say, &plusmn;1&deg;F) rather than one that runs the heater continuously to hit an
+  exact number. The furnace only turns on once the room drifts outside that
+  window, saving energy without letting the room get uncomfortably cold. Band
+  hedging applies the same idea to Delta: don't trade every single day regardless
+  of need &mdash; trade only when your current hedge has drifted far enough from
+  the model's current Delta to actually be worth the transaction cost of fixing.
+</div>
+
+<div class="box finding">
+  <span class="box-label">What This Project Found</span>
+  For SPY, widening the tolerance band MONOTONICALLY reduced both CVaR and the
+  average transaction cost paid &mdash; band hedging is not simply "less trading
+  equals more risk." For BTC-USD, CVaR initially FELL as the band widened, reached
+  a minimum around a band width of 0.05, and then rose again for wider bands still
+  &mdash; a genuine cost/risk "sweet spot," not a trivial always-one-direction
+  tradeoff.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/hedging_engine.py</code>, functions <code>simulate_delta_hedge_band()</code>
+  and its vectorized counterpart <code>simulate_delta_hedge_band_batch()</code>.
+  Doubly validated: bit-identical to its own per-path version, AND proven to reduce
+  EXACTLY to ordinary daily rebalancing when the tolerance band is set to zero
+  (a difference of precisely 0.00, confirming it is a strict generalization rather
+  than a separate, potentially-inconsistent implementation).
+</div>
+
+<h2 class="section" id="p5-vega">5.4 Delta-Vega Hedging: Adding a Second Instrument</h2>
+
+<p>Every hedge described so far trades ONLY the underlying asset. But recall from
+Part 3.2 that the underlying has zero Vega &mdash; it has no direct sensitivity to
+volatility itself changing. This means a Delta-only hedge can NEVER protect against
+volatility risk, no matter how sophisticated the pricing model behind it is
+&mdash; a real limitation for the Heston model specifically, whose entire
+distinguishing feature IS random volatility.</p>
+
+<p>The fix used in this project is to add a SECOND option (a different strike,
+same expiry) to the hedge portfolio, sized specifically to cancel out net Vega,
+with the underlying then used (as before) to mop up whatever Delta is left over.</p>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; The Two-Instrument Hedge Ratios</span>
+  <div class="eq">n<sub>instrument</sub> = Vega<sub>target</sub> / Vega<sub>instrument</sub></div>
+  <div class="eq">n<sub>stock</sub> = &Delta;<sub>target</sub> &minus; n<sub>instrument</sub>&middot;&Delta;<sub>instrument</sub></div>
+  <table class="symboltable">
+    <tr><td class="sym">target</td><td>The option the market maker originally sold (is "short").</td></tr>
+    <tr><td class="sym">instrument</td><td>The second, different-strike option now added purely as a hedging tool.</td></tr>
+    <tr><td class="sym">n<sub>instrument</sub></td><td>How many units of the second option to hold &mdash; chosen so that n<sub>instrument</sub>&middot;Vega<sub>instrument</sub> exactly cancels Vega<sub>target</sub>, leaving zero NET Vega.</td></tr>
+    <tr><td class="sym">n<sub>stock</sub></td><td>How many shares of the underlying to hold &mdash; chosen AFTER the Vega hedge is set, to clean up whatever Delta the instrument itself introduced (since the instrument option has its own Delta too, not just Vega).</td></tr>
+  </table>
+</div>
+
+<div class="box finding">
+  <span class="box-label">What This Project Found &mdash; An Honest, Nuanced Result</span>
+  Tested under a true market with genuine stochastic volatility (each asset's own
+  calibrated Heston process), Delta-Vega hedging cut CVaR by roughly a quarter
+  for BTC-USD &mdash; a large, real improvement, because BTC's calibrated
+  vol-of-vol (&xi; &asymp; 0.33) is substantial. For SPY, whose calibrated
+  vol-of-vol is much smaller (&xi; &asymp; 0.09), adding a Vega hedge actually made
+  CVaR slightly WORSE: the second instrument's own trading costs and noise were not
+  repaid by protection against a volatility-of-volatility risk that barely exists
+  for that asset. This is reported honestly rather than only showing the flattering
+  case &mdash; it reinforces the project's broader theme that hedge sophistication
+  must match the SPECIFIC risk actually present, not be added on principle.
+</div>
+
+<div class="box caution">
+  <span class="box-label">Caution / Limitation &mdash; A Genuine Numerical Subtlety, Found and Fixed</span>
+  Every option's Vega shrinks to zero as expiry approaches, and a fixed-strike
+  instrument that has drifted away from the money loses its Vega FASTER than an
+  at-the-money target does &mdash; so the ratio n<sub>instrument</sub> can compound
+  to an unreasonable size in the final days before expiry, well before either Vega
+  is a literal zero. This was caught during development as an unusually
+  heavy-tailed simulated profit/loss distribution, traced to exactly this cause,
+  and fixed by capping the instrument quantity at a fixed multiple of its
+  well-behaved, full-maturity value &mdash; approximating how a real trading desk
+  would roll into a fresher hedging instrument rather than lever into an
+  increasingly unreliable one.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/hedging_engine.py</code>, function <code>simulate_delta_vega_hedge_batch()</code>,
+  using a new <code>_batch_vega()</code> helper that computes Vega for all three
+  hedge models (including Merton, which previously had no Vega calculation at all).
+</div>
+
+<!-- ============================== PART 6: VAR/CVAR ============================== -->
+<div class="part-title-page" id="part6">
+  <div class="part-kicker">Part 6</div>
+  <h1>Measuring Risk &mdash; VaR and CVaR From Scratch</h1>
+  <div class="part-teaser">How do you turn "thousands of simulated hedging
+  outcomes" into a single, honest number describing how bad things can get?</div>
+</div>
+
+<h2 class="section" id="p6-distribution">6.1 From Many Simulated Paths to a Loss Distribution</h2>
+
+<p>Running the hedging engine from Part 5 on ONE simulated price path gives ONE
+number: the hedging profit or loss for that particular pretend future. That single
+number tells you almost nothing about risk &mdash; you need to know the whole RANGE
+of things that could plausibly happen. This project's core experiment simulates
+8,000 independent, alternate 3-month futures for each asset (each one a different
+random draw from the calibrated Merton jump-diffusion process), hedges through
+every single one, and collects all 8,000 resulting profit/loss numbers into a
+<strong>distribution</strong> &mdash; essentially, a very detailed histogram of "here
+is every plausible outcome, and how often each range of outcomes occurred."</p>
+
+<p>For risk-measurement purposes, this project works with <strong>losses</strong>
+rather than profits: loss = &minus;(hedging P&amp;L), so that a POSITIVE loss means
+the market maker lost money, and a bigger positive number is a worse outcome
+&mdash; a simple sign convention used consistently everywhere in the project.</p>
+
+<h2 class="section" id="p6-var">6.2 Value-at-Risk (VaR): "How Bad, at the q% Worst Level?"</h2>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; Historical VaR</span>
+  <div class="eq">VaR<sub>q</sub> = the (1&minus;q) quantile of the loss distribution</div>
+  <table class="symboltable">
+    <tr><td class="sym">q</td><td>The tail probability, e.g. q=0.05 for "95% VaR" (looking at the worst 5% of outcomes) or q=0.01 for "99% VaR" (the worst 1%).</td></tr>
+    <tr><td class="sym">quantile</td><td>Sort ALL the simulated losses from smallest to biggest. The (1&minus;q) quantile is the value that (1&minus;q) of the fraction of outcomes fall below &mdash; equivalently, exactly q of the fraction of outcomes are WORSE than this number.</td></tr>
+  </table>
+</div>
+
+<div class="box example">
+  <span class="box-label">Worked Example &mdash; VaR by Hand on 20 Numbers</span>
+  <p>Suppose (for illustration only &mdash; the real project uses 8,000 paths, not
+  20) a simulation produced these 20 sorted losses (in dollars), worst first:</p>
+  <p class="mono" style="display:block; background:#f0f0f4; padding:8px; border-radius:4px;">
+  95, 80, 62, 55, 48, 40, 35, 30, 28, 22, 18, 15, 12, 9, 5, 2, &minus;1, &minus;4, &minus;8, &minus;15
+  </p>
+  <p>For 95% VaR (q = 0.05), we want the loss level that only the worst 5% of
+  outcomes exceed. With 20 numbers, 5% is exactly 1 outcome. So VaR<sub>5%</sub> is
+  the SECOND-worst number in the sorted list (the boundary just past the single
+  worst outcome): <strong>VaR<sub>5%</sub> = 80.</strong> Interpretation: "there is
+  only a 5% chance of losing more than $80."</p>
+</div>
+
+<div class="box caution">
+  <span class="box-label">Caution / Limitation of VaR</span>
+  VaR tells you the THRESHOLD the worst outcomes cross, but says NOTHING about how
+  bad things get once you're past that threshold. In the example above, VaR is $80
+  whether the single worst outcome was $81 or $10,000,000 &mdash; VaR is completely
+  blind to just how catastrophic the tail actually is. This single weakness is the
+  entire motivation for CVaR, below.
+</div>
+
+<h2 class="section" id="p6-cvar">6.3 Conditional Value-at-Risk (CVaR): "How Bad, ON AVERAGE, Beyond That Point?"</h2>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; Historical CVaR</span>
+  <div class="eq">CVaR<sub>q</sub> = the AVERAGE of the worst q-fraction of all outcomes</div>
+  <table class="symboltable">
+    <tr><td class="sym">k</td><td>The number of "worst" outcomes to average, k = floor(q &times; total number of outcomes).</td></tr>
+  </table>
+  In code: sort the losses worst-first, take the top k of them, and average just
+  those k numbers (see the worked example below).
+</div>
+
+<div class="box example">
+  <span class="box-label">Worked Example &mdash; CVaR by Hand, Same 20 Numbers</span>
+  <p>Using q = 0.05 again on the same 20 sorted losses, k = floor(0.05 &times; 20) =
+  1 &mdash; so CVaR<sub>5%</sub> is simply the average of the single worst outcome:
+  <strong>CVaR<sub>5%</sub> = 95</strong> (in this tiny 20-number example, CVaR at
+  this q-level happens to just equal the single worst loss, since only one outcome
+  falls in the worst 5%). With a bigger sample &mdash; say 100 outcomes and
+  q=0.05 &mdash; CVaR would average the worst 5 outcomes together, giving a genuine
+  sense of "how catastrophic does the tail typically get," not just where it starts.</p>
+</div>
+
+<div class="box plain">
+  <span class="box-label">Plain English &mdash; why CVaR is preferred</span>
+  Imagine two insurance policies with an identical 95% VaR of $80 (a 5% chance of a
+  loss exceeding $80). Policy A's worst-case losses, when they happen, are usually
+  around $85. Policy B's worst-case losses, when they happen, are usually around
+  $5,000 (one truly catastrophic tail). VaR alone cannot tell these two policies
+  apart at all &mdash; both report exactly "$80." CVaR immediately reveals the
+  difference, because it looks PAST the threshold and averages what actually
+  happens back there. CVaR also has a mathematical property called
+  <strong>coherence</strong> (technically, "subadditivity"): combining two risky
+  positions into one portfolio should never make your risk measure go UP relative to
+  holding them separately (this is exactly what diversification is supposed to
+  achieve) &mdash; CVaR always respects this; VaR, in certain unusual situations,
+  can actually violate it.
+</div>
+
+<div class="box finding">
+  <span class="box-label">The Project's Headline Numbers</span>
+  <table class="data">
+    <tr><th>Asset</th><th>Hedge model</th><th>CVaR(95%) of hedging loss</th></tr>
+    <tr><td>SPY</td><td>Black-Scholes (blind to jumps)</td><td><strong>$38.86</strong></td></tr>
+    <tr><td>SPY</td><td>Merton (jump-aware)</td><td>$31.89</td></tr>
+    <tr><td>BTC-USD</td><td>Black-Scholes (blind to jumps)</td><td><strong>$10,025.16</strong></td></tr>
+    <tr><td>BTC-USD</td><td>Merton (jump-aware)</td><td>$8,184.50</td></tr>
+  </table>
+  In plain terms: a market maker hedging a short call with Black-Scholes Delta, in a
+  market that actually has the jump behaviour these two real assets have shown
+  historically, should EXPECT their worst 5%-of-the-time outcomes to average about
+  22% worse than a market maker using a jump-aware Merton hedge instead &mdash; a
+  meaningful amount of tail risk the Black-Scholes-only market maker's own risk
+  model cannot see coming.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/risk_analysis.py</code>, functions <code>var_historical()</code> and
+  <code>cvar_historical()</code>, and <code>compare_hedge_models_under_true_dgp()</code>,
+  which runs the entire "simulate thousands of paths, hedge through every one,
+  compute CVaR" pipeline for a chosen list of candidate hedge models at once.
+</div>
+
+<!-- ============================== PART 7: BOOTSTRAP ============================== -->
+<div class="part-title-page" id="part7">
+  <div class="part-kicker">Part 7</div>
+  <h1>How Sure Are We? Bootstrap Statistics and Hypothesis Testing</h1>
+  <div class="part-teaser">"CVaR(95%) = 38.86" is a single number from one
+  particular batch of 8,000 simulated paths. How much would it change if we
+  re-ran the simulation? And is the gap between two hedge models real, or noise?</div>
+</div>
+
+<h2 class="section" id="p7-uncertainty">7.1 Every Estimate Has Uncertainty</h2>
+
+<p>If this project's simulation were re-run with a different random-number seed,
+generating a DIFFERENT 8,000 simulated paths, the resulting CVaR would come out to
+a slightly different number &mdash; not exactly 38.86, but something close to it.
+A responsible risk estimate should always be accompanied by a sense of "how much
+could this number plausibly have been, just from the luck of which particular
+random paths got simulated?" This is exactly what a <strong>standard error</strong>
+and <strong>confidence interval</strong> quantify.</p>
+
+<h2 class="section" id="p7-bootstrap">7.2 The Bootstrap: "What If We Resample Our Own Data?"</h2>
+
+<p>The most direct way to see how much an estimate could plausibly vary would be to
+re-run the ENTIRE simulation many times over and look at how much the answer moves
+around &mdash; but that is extremely expensive. The <strong>bootstrap</strong>
+(Efron &amp; Tibshirani, 1993) is a remarkably simple trick that gets nearly the
+same information from the data you ALREADY have, with no new simulation required.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Suppose you have 8,000 simulated hedging outcomes. To bootstrap, you build a
+  brand-new, ALSO-8,000-outcome sample by drawing 8,000 times, WITH REPLACEMENT,
+  from your original 8,000 numbers &mdash; meaning some original outcomes might get
+  picked two, three, or zero times in this new sample, purely by chance. You then
+  recompute CVaR on this resampled batch. Do this a few thousand times, each time
+  drawing a fresh random resample and recomputing CVaR, and you build up a whole
+  DISTRIBUTION of "plausible CVaR values, given the natural randomness in which
+  8,000 outcomes you happened to observe." The SPREAD of that distribution is
+  precisely an honest estimate of how uncertain your original single CVaR number
+  really is &mdash; without ever needing to run the (expensive) full hedging
+  simulation again.
+</div>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; Bootstrap Confidence Interval</span>
+  <div class="eq">CI<sub>95%</sub> = [2.5th percentile, 97.5th percentile] of the bootstrap-resampled CVaR values</div>
+  <table class="symboltable">
+    <tr><td class="sym">B</td><td>The number of bootstrap resamples drawn (2,000&ndash;3,000 in this project) &mdash; more resamples give a smoother, more precise picture of the uncertainty, at the cost of more computation.</td></tr>
+  </table>
+  Taking the middle 95% of the resulting B bootstrap CVaR values (i.e., trimming
+  off the most extreme 2.5% on each end) gives a 95% confidence interval: a range
+  we can be reasonably confident contains the TRUE CVaR, if we had somehow been
+  able to simulate infinitely many paths instead of just 8,000.
+</div>
+
+<div class="box example">
+  <span class="box-label">Worked Example &mdash; Validating the Bootstrap Itself</span>
+  Before trusting this technique on the project's real results, it was checked
+  against a case where the TRUE answer is exactly, mathematically known: losses
+  drawn from a plain bell curve (Normal distribution) have a CVaR with a known
+  closed-form formula. Bootstrapping a simulated sample from that bell curve
+  produces a confidence interval that (a) actually contains the true, known CVaR
+  value, (b) gets narrower as the sample size grows (more data, less uncertainty,
+  exactly as expected), and (c), across 150 independently repeated trials, contains
+  the true value roughly 94% of the time against a 95% target &mdash; confirming
+  the method is not badly miscalibrated.
+</div>
+
+<h2 class="section" id="p7-paired">7.3 The Paired Bootstrap Test: Is the Gap Between Two Hedges Real?</h2>
+
+<p>The project's central claim is a COMPARISON: "the BS hedge's CVaR is higher than
+the Merton hedge's CVaR." Since both hedge models are tested on the exact SAME
+8,000 simulated paths (only the hedging strategy differs, not the underlying
+scenarios), a smarter version of the bootstrap can be used: instead of resampling
+each model's outcomes independently, resample the SAME set of path numbers each
+time, and apply that identical resample to BOTH models at once.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  If path #4,213 happened to be a big historical-style crash scenario, BOTH the BS
+  hedge and the Merton hedge experienced that exact same crash on that path &mdash;
+  they are naturally linked ("paired") together, path by path. Resampling paired
+  path INDICES (rather than resampling each model's results separately) correctly
+  keeps that link intact in every bootstrap redraw, which turns out to give a much
+  more powerful, more sensitive test of whether the GAP between the two models is
+  real, since it isolates exactly the paths where the two hedges genuinely disagreed.
+</div>
+
+<h2 class="section" id="p7-pvalue">7.4 p-Values and "Statistical Significance," in Plain English</h2>
+
+<p>A <strong>p-value</strong> answers one specific question: <em>"if there were
+truly NO real difference between the BS hedge and the Merton hedge, how likely
+would we be to see a gap in our sample at least as large as the one we actually
+observed, purely by chance?"</em> A small p-value (conventionally, below 0.05, i.e.
+below 5%) means "very unlikely to be pure chance" &mdash; which is what people mean
+when they say a result is <strong>statistically significant</strong>.</p>
+
+<div class="box finding">
+  <span class="box-label">The Project's Result</span>
+  <table class="data">
+    <tr><th>Asset</th><th>BS CVaR [95% CI]</th><th>Merton CVaR [95% CI]</th><th>Paired difference [95% CI]</th><th>p-value</th></tr>
+    <tr><td>SPY</td><td>38.86 [37.10, 40.56]</td><td>31.89 [30.27, 33.48]</td><td>6.97 [6.75, 7.17]</td><td>&lt; 0.001</td></tr>
+    <tr><td>BTC-USD</td><td>10,025.16 [9,575.06, 10,487.01]</td><td>8,184.50 [7,748.34, 8,622.20]</td><td>1,840.66 [1,790.01, 1,895.07]</td><td>&lt; 0.001</td></tr>
+  </table>
+  Both gaps are significant well beyond the conventional 5% threshold &mdash; in
+  fact so far beyond it that, across thousands of bootstrap resamples, essentially
+  none of them showed the gap reversing sign. Note also that the confidence
+  intervals on BS-hedge CVaR and Merton-hedge CVaR (columns 2 and 3) DO NOT EVEN
+  OVERLAP &mdash; a visually obvious, not just formally significant, difference.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/statistical_inference.py</code>, functions <code>bootstrap_ci()</code>
+  (single-sample confidence interval) and <code>paired_bootstrap_test()</code>
+  (the paired comparison described above).
+</div>
+
+<!-- ============================== PART 8: EVT ============================== -->
+<div class="part-title-page" id="part8">
+  <div class="part-kicker">Part 8</div>
+  <h1>Extreme Value Theory &mdash; Estimating Risks You Haven't Seen Yet</h1>
+  <div class="part-teaser">How can you responsibly estimate "how bad could the
+  worst 1-in-1,000 outcome be" when you've only simulated 8,000 paths total?</div>
+</div>
+
+<h2 class="section" id="p8-problem">8.1 The Deep-Tail Data Problem</h2>
+
+<p>Historical CVaR (Part 6) works by literally sorting the simulated outcomes and
+averaging the worst few. At the 95% level (q=0.05) with 8,000 paths, that means
+averaging the worst 400 outcomes &mdash; plenty of data to get a stable answer. But
+at the 99.9% level (q=0.001), that same 8,000-path sample only has about 8
+observations informing the estimate. Eight data points is a very thin basis for a
+number a risk manager might want to rely on.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Imagine trying to estimate how bad the worst flood in 1,000 years could be, but
+  you only have 8 years of rainfall records. You obviously cannot just look at your
+  single worst recorded year and call it "the 1-in-1,000-year flood" &mdash; you
+  need some kind of principled way to extrapolate BEYOND what you've actually
+  observed. Extreme Value Theory (EVT) is exactly that principled extrapolation
+  method, applied to financial losses instead of floods.
+</div>
+
+<h2 class="section" id="p8-gpd">8.2 An Almost Magical Theorem About Tails</h2>
+
+<p>You may already know the <strong>Central Limit Theorem</strong>: no matter what
+weird distribution a single random variable follows, the AVERAGE of many
+independent copies of it tends toward the same familiar bell curve (Normal
+distribution) as you average more and more of them. Extreme Value Theory rests on
+an equally remarkable, less famous cousin of that theorem, due to Pickands (1975)
+and Balkema &amp; de Haan (1974): no matter what distribution your data follows,
+the shape of the EXCEEDANCES over a sufficiently high threshold (how much worse
+than the threshold the bad outcomes get, when they do exceed it) always converges
+to one specific family of distributions: the <strong>Generalized Pareto
+Distribution (GPD)</strong>.</p>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; The Generalized Pareto Distribution</span>
+  <div class="eq">P(Loss &gt; threshold + y | Loss &gt; threshold) = (1 + &xi;y/&beta;)<sup>&minus;1/&xi;</sup></div>
+  <table class="symboltable">
+    <tr><td class="sym">threshold</td><td>A high cutoff level chosen in advance (this project defaults to the 90th percentile of simulated losses &mdash; the worst 10%).</td></tr>
+    <tr><td class="sym">y</td><td>An "exceedance" amount &mdash; how much further past the threshold a particular bad outcome went.</td></tr>
+    <tr><td class="sym">&xi;</td><td>("xi") The GPD's <strong>shape parameter</strong> &mdash; controls how "fat" the extreme tail is. Larger &xi; means a heavier, more dangerous tail (more chance of a truly enormous loss); &xi;=0 is the special case of an exponentially-thinning tail.</td></tr>
+    <tr><td class="sym">&beta;</td><td>("beta") The GPD's <strong>scale parameter</strong> &mdash; sets the typical SIZE of exceedances, in dollar terms.</td></tr>
+  </table>
+</div>
+
+<p>Both &xi; and &beta; are fitted to the observed exceedances over the threshold
+using maximum likelihood (a standard statistical fitting procedure: find the
+parameter values that make the ACTUALLY OBSERVED exceedances as probable as
+possible under the GPD formula). Once fitted, the GPD formula can be
+mathematically inverted to estimate VaR/CVaR at quantiles FAR beyond what the raw
+data can inform directly &mdash; this is the entire point.</p>
+
+<div class="box example">
+  <span class="box-label">Worked Example &mdash; Validating EVT on Data With a KNOWN Answer</span>
+  Before trusting this on the project's real results, EVT was tested on synthetic
+  data specifically built with a known, exact tail: ordinary "calm day" losses below
+  a threshold, plus a separate, deliberately-inserted tail of exceedances drawn
+  EXACTLY from a GPD with pre-chosen, known &xi; and &beta;. Repeated over 40
+  independent re-draws, at a very deep quantile (0.05%, meaning only about 3
+  observations out of several thousand would even be in that tail historically):
+  the EVT-based estimate was closer to the TRUE, known answer on AVERAGE (6.0% mean
+  relative error vs. 7.4% for the plain historical estimator) and, for CVaR
+  specifically, notably MORE STABLE from one re-draw to the next (lower
+  variance) &mdash; precisely the regime EVT is designed to help with.
+</div>
+
+<div class="box finding">
+  <span class="box-label">The Project's Actual Results</span>
+  <table class="data">
+    <tr><th>Asset / hedge</th><th>&xi;</th><th>&beta;</th><th>Historical CVaR(99.9%)</th><th>EVT CVaR(99.9%)</th></tr>
+    <tr><td>SPY / BS hedge</td><td>0.012</td><td>12.22</td><td>86.52</td><td>89.03</td></tr>
+    <tr><td>SPY / Merton hedge</td><td>0.047</td><td>10.70</td><td>77.01</td><td>81.85</td></tr>
+    <tr><td>BTC-USD / BS hedge</td><td>0.053</td><td>2,989.03</td><td>25,836.58</td><td>24,287.93</td></tr>
+    <tr><td>BTC-USD / Merton hedge</td><td>0.070</td><td>2,703.31</td><td>23,411.42</td><td>21,936.47</td></tr>
+  </table>
+  At the moderate 95% level, historical and EVT estimates agree closely (both have
+  ample data); at this much deeper 99.9% level, they diverge &mdash; exactly where
+  the historical estimator is running low on data and EVT is instead extrapolating
+  smoothly from the fitted tail shape.
+</div>
+
+<h2 class="section" id="p8-hill">8.3 Hill's Estimator: A Simpler Cross-Check, With a Known Weakness</h2>
+
+<p>Hill's (1975) estimator is a simpler, older way to estimate the tail shape
+parameter &xi;, using only the ratio of the largest few observed losses to each
+other. It is validated in this project on its ideal textbook case (data whose tail
+is EXACTLY a pure power law, called a Pareto distribution), where it works
+excellently.</p>
+
+<div class="box caution">
+  <span class="box-label">Caution / Limitation &mdash; Reported Honestly</span>
+  When tested on a Generalized Pareto tail (rather than a pure Pareto tail), Hill's
+  estimator was found to carry a genuine, known finite-sample bias &mdash; it is a
+  RATIO-based formula, and ratios are sensitive to an added constant (the
+  threshold) in a way that a pure power-law tail (with no such added constant)
+  isn't. Rather than hide this or quietly drop the method, this project keeps Hill's
+  estimator as a secondary STABILITY/plausibility diagnostic (via a "Hill plot":
+  the estimate recomputed across a range of possible sample sizes, which should
+  look roughly flat if reliable) alongside the primary, more carefully validated
+  GPD maximum-likelihood fit &mdash; not as a replacement for it.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/tail_risk.py</code>, functions <code>fit_gpd_pot()</code> (the main GPD
+  fit), <code>evt_var()</code> / <code>evt_cvar()</code> (inverting the fitted tail
+  to a risk estimate), <code>hill_estimator()</code>, and
+  <code>mean_excess_plot_data()</code> (a second graphical diagnostic for choosing
+  a sensible threshold, shown in the dashboard's Tail Risk tab).
+</div>
+
+<!-- ============================== PART 9: AMERICAN OPTIONS ============================== -->
+<div class="part-title-page" id="part9">
+  <div class="part-kicker">Part 9</div>
+  <h1>American Options &mdash; Binomial Trees and the Crank-Nicolson PDE</h1>
+  <div class="part-teaser">Every model in Part 3 prices European options only. Real
+  listed stock options are usually American-style. Here is how to price those,
+  using two completely independent numerical methods.</div>
+</div>
+
+<h2 class="section" id="p9-early">9.1 European vs. American: The Right to Exercise Early</h2>
+
+<p>A <strong>European</strong> option (the only kind priced in Parts 3&ndash;8) can
+only be exercised on its exact maturity date &mdash; you either use it at expiry or
+let it expire worthless. An <strong>American</strong> option grants the extra right
+to exercise it EARLY, at any point before maturity, if that happens to be
+advantageous. (Confusingly, these names have nothing to do with geography &mdash;
+they are just historical labels.)</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English &mdash; when would early exercise ever make sense?</span>
+  For a <strong>put</strong> option on a non-dividend stock, it can become
+  worthwhile to exercise early if the stock has fallen so far that the option is
+  deep "in the money": exercising now locks in the strike proceeds and lets you
+  start earning interest on that cash immediately, rather than waiting for
+  maturity to collect the same (or a similar) payoff. For a <strong>call</strong>
+  option, early exercise is essentially NEVER worthwhile on a stock that pays no
+  dividends (you'd be giving up the remaining time value for nothing) &mdash; but
+  it CAN become worthwhile just before a big dividend payment, because dividends
+  are paid to whoever owns the actual stock, not to option holders, and the stock
+  price typically drops by roughly the dividend amount on the payment date.
+  Exercising the call just before that date lets you capture the dividend instead
+  of watching the stock (and your un-exercised option) drop in value for a payment
+  you never received.
+</div>
+
+<div class="box caution">
+  <span class="box-label">Why This Matters for This Project</span>
+  Every one of this project's three pricing models (Black-Scholes, Heston, Merton)
+  only prices EUROPEAN options &mdash; a genuine capability gap, since real listed
+  single-stock equity options are American-style, and "price an American option" is
+  one of the single most common topics tested in quantitative finance interviews.
+  <code>american_options.py</code> closes this gap.
+</div>
+
+<h2 class="section" id="p9-tree">9.2 The Binomial Tree: A Simple, Visual Approach</h2>
+
+<p>The Cox-Ross-Rubinstein (1979) binomial tree replaces the smooth, continuous
+price motion of Geometric Brownian Motion with something much simpler to picture:
+at each small time step, the price can only do one of two things &mdash; move UP by
+a fixed multiplicative factor u, or move DOWN by a fixed factor d. Repeating this
+many times over builds a branching "tree" of every possible price path.</p>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; Setting Up the Tree</span>
+  <div class="eq">u = e<sup>&sigma;&radic;dt</sup> &nbsp;&nbsp;&nbsp;&nbsp; d = 1/u &nbsp;&nbsp;&nbsp;&nbsp; p = (e<sup>r&middot;dt</sup> &minus; d) / (u &minus; d)</div>
+  <table class="symboltable">
+    <tr><td class="sym">dt</td><td>The size of one small time step (e.g., one trading day out of the option's life).</td></tr>
+    <tr><td class="sym">u, d</td><td>The up and down multiplicative price factors &mdash; chosen (via this exact formula) so the tree's spread of possible prices matches the model's volatility &sigma; as the number of steps grows.</td></tr>
+    <tr><td class="sym">p</td><td>The "risk-neutral probability" of an up-move &mdash; NOT the real-world probability of the price rising, but a mathematical device chosen so that the tree is internally consistent with a no-arbitrage (no free lunch) assumption.</td></tr>
+  </table>
+</div>
+
+<h4 class="subsub">Step-by-step: how the tree is actually used to find a price</h4>
+
+<ol>
+<li><strong>Build forward.</strong> Starting from today's price, repeatedly apply u
+or d to enumerate every possible price at every future time step, all the way out
+to maturity &mdash; this creates a branching (but "recombining," since an up-then-down
+move lands on the same price as a down-then-up move) lattice of prices.</li>
+<li><strong>Compute the payoff at every final (maturity) node</strong> &mdash; simply
+max(S&minus;K, 0) for a call, using whatever price that node represents.</li>
+<li><strong>Work BACKWARD, one time step at a time.</strong> At every node one step
+before maturity, the option's value is the DISCOUNTED, probability-weighted average
+of its two possible next-step values: p&middot;(value if up) + (1&minus;p)&middot;(value
+if down), all multiplied by e<sup>&minus;r&middot;dt</sup> to discount back one step.</li>
+<li><strong>For an American option, at every node, also check immediate
+exercise.</strong> Compare the "continuation value" just computed in step 3 against
+the payoff of exercising RIGHT NOW at that node's price, and keep whichever is
+LARGER &mdash; a rational holder always takes the better of the two options.</li>
+<li><strong>Repeat step 3&ndash;4 all the way back to today</strong> &mdash; the
+value at the very first (starting) node is the option's price.</li>
+</ol>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Picture a branching tree of possible futures, drawn out completely, with the
+  option's known, certain value written at every branch tip (maturity). Working
+  backward one layer at a time, at every branching point you ask "given the two
+  possible next outcomes, and their probabilities, what is this branch worth right
+  now?" &mdash; and for an American option, you ALSO ask "would I be better off just
+  cashing out immediately, right here, instead of waiting?" and always take the
+  better of those two numbers. By the time you've worked all the way back to the
+  trunk of the tree, you have today's fair price, AND you've automatically
+  discovered every point in the tree where early exercise would have been the
+  right call.
+</div>
+
+<h2 class="section" id="p9-pde">9.3 The Crank-Nicolson PDE: Solving an Entire Grid at Once</h2>
+
+<p>A <strong>partial differential equation (PDE)</strong> is, in plain terms, a
+rule connecting how a quantity changes when you nudge ONE of its inputs to how it
+changes when you nudge a DIFFERENT input &mdash; here, the rule (derived by Black,
+Scholes, and Merton, the same insight underlying Part 3.1's formula) connects how
+the option's price changes as the underlying price S moves to how it changes as
+time passes, WITHOUT assuming ahead of time what the price actually looks like.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Instead of building one branching tree of individual price scenarios (like Part
+  9.2), the PDE approach lays out a two-dimensional GRID: one axis is the
+  underlying's price (chopped into, say, 200 discrete price levels from $0 up to
+  several times today's price), and the other axis is time (chopped into, say, 200
+  discrete days from today out to maturity). We know the option's exact value along
+  the "maturity" edge of this grid (it's just the payoff). The PDE rule then lets us
+  fill in the value at every OTHER point of the grid, one column of time-steps at a
+  time, working backward from the known maturity edge &mdash; using simple algebra
+  at each grid point based on its neighbours, rather than simulating individual
+  random paths at all.
+</div>
+
+<h4 class="subsub">Why "Crank-Nicolson," and why solve a whole grid instead of one price?</h4>
+
+<p>"Crank-Nicolson" (1947) refers to a specific, numerically well-behaved recipe for
+turning the PDE's smooth calculus into simple grid arithmetic (it averages two
+different, more naive ways of doing this &mdash; called "explicit" and "implicit"
+schemes &mdash; to get a method that is both accurate and numerically stable). The
+genuinely useful side-benefit of solving an entire price/time GRID, rather than one
+option price at a time, is that a single solve gives you:</p>
+
+<ul>
+<li><strong>The option's price at every possible starting spot price</strong>, not just today's actual spot price &mdash; useful for building an entire smile/surface of prices at once.</li>
+<li><strong>Delta and Gamma, essentially for free</strong>, just by looking at the grid values immediately NEXT TO today's actual price and using simple slope arithmetic &mdash; no separate, extra re-pricing needed at all.</li>
+<li><strong>The early-exercise boundary</strong>: at every time step, there is some critical price below which (for a put) immediate exercise is optimal. Tracking exactly where that boundary sits at every single time step traces out a curve over the whole life of the option &mdash; visualized directly in the dashboard (Part 13).</li>
+</ul>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; Enforcing Early Exercise on the Grid</span>
+  <div class="eq">V<sub>grid</sub> &larr; max(V<sub>grid</sub>, payoff<sub>grid</sub>) &nbsp;&nbsp; (applied after every single time step)</div>
+  This is the entire mechanism for American-ness in the PDE approach: after
+  computing what the option would be worth if you were NOT allowed to exercise
+  early (the ordinary PDE step), simply overwrite any grid point where immediate
+  exercise would have been worth MORE &mdash; a direct, grid-wide analogue of the
+  binomial tree's node-by-node "compare and keep the larger" rule from Part 9.2.
+</div>
+
+<div class="box finding">
+  <span class="box-label">The Project's Validation and Results</span>
+  <table class="data">
+    <tr><th>Asset</th><th>European put</th><th>American put (tree)</th><th>Early-exercise premium</th><th>Crank-Nicolson price</th></tr>
+    <tr><td>SPY (&sigma;=15.8%)</td><td>$18.14</td><td>$18.73</td><td>$0.58 (3.22%)</td><td>$18.53</td></tr>
+    <tr><td>BTC-USD (&sigma;=45.6%)</td><td>$7,545.86</td><td>$7,612.82</td><td>$66.96 (0.89%)</td><td>$7,606.73</td></tr>
+  </table>
+  The two completely independent numerical methods (tree and PDE) agree to within a
+  few cents across a range of strikes. Both are also confirmed to satisfy every
+  piece of theory described in Part 9.1: an American call with NO dividends
+  exactly matches its European price (early exercise adds nothing); an American
+  call WITH a dividend shows a genuine positive early-exercise premium; and the
+  American put's early-exercise boundary always stays below the strike price, as
+  it logically must.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/american_options.py</code>: <code>binomial_tree_option()</code> (the
+  tree, vectorized across all nodes at a given time step for speed) and
+  <code>crank_nicolson_american()</code> (the PDE, solved using a fast "tridiagonal"
+  linear-algebra solver at each time step, and optionally tracking the
+  early-exercise boundary as it goes).
+</div>
+
+<!-- ============================== PART 10: MONTE CARLO ============================== -->
+<div class="part-title-page" id="part10">
+  <div class="part-kicker">Part 10</div>
+  <h1>Monte Carlo Simulation and Variance Reduction</h1>
+  <div class="part-teaser">The technique used everywhere in this project to
+  cross-validate pricing formulas and to run the headline hedging experiment
+  itself &mdash; explained from the ground up, plus three ways to make it
+  more efficient.</div>
+</div>
+
+<h2 class="section" id="p10-mc">10.1 What Is Monte Carlo Simulation?</h2>
+
+<p><strong>Monte Carlo simulation</strong> (named after the famous casino, because
+of its reliance on repeated random chance) is a way of estimating a mathematical
+answer &mdash; here, an option's fair price, or the CVaR of a hedging strategy
+&mdash; by generating a very large number of random "what if" scenarios on a
+computer and simply averaging the results, rather than solving an equation exactly.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Suppose you wanted to know the average outcome of rolling two dice and adding
+  them together, but had somehow forgotten how to compute it directly. You could
+  instead roll two real dice ten thousand times, add up the two numbers each time,
+  and average all ten thousand sums &mdash; you would get a number extremely close
+  to the true mathematical average (7), without ever writing down a formula. Monte
+  Carlo option pricing does exactly this, but "rolling the dice" means generating a
+  random future price PATH using one of Part 3's models (a sequence of random
+  up/down/jump shocks, one per day, compounded together), and the "outcome" is the
+  option's payoff at the end of that particular simulated path.
+</div>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; Monte Carlo Pricing</span>
+  <div class="eq">Price &asymp; e<sup>&minus;rT</sup> &middot; (1/N) &middot; &Sigma;<sub>i=1</sub><sup>N</sup> payoff(S<sub>T</sub><sup>(i)</sup>)</div>
+  <table class="symboltable">
+    <tr><td class="sym">N</td><td>The number of independently simulated paths (this project typically uses tens of thousands for pricing cross-checks, and 8,000 for the main hedging study).</td></tr>
+    <tr><td class="sym">S<sub>T</sub><sup>(i)</sup></td><td>The final, simulated price at maturity for the i-th random path.</td></tr>
+  </table>
+  Simply average the discounted payoff across all N simulated paths &mdash; the
+  <strong>Law of Large Numbers</strong> (a foundational theorem of probability)
+  guarantees this average converges to the TRUE price as N grows, and the
+  <strong>standard error</strong> of that average (how far off a finite-N estimate
+  is likely to be) shrinks proportionally to 1/&radic;N &mdash; quadrupling N only
+  halves your uncertainty, which is why getting extra precision "for free" (variance
+  reduction, below) is genuinely valuable rather than a minor optimization.
+</div>
+
+<h2 class="section" id="p10-antithetic">10.2 Antithetic Variates: Pairing Each Path With Its Mirror Image</h2>
+
+<p>The simplest variance-reduction trick: for every random path simulated using a
+particular sequence of random shocks, ALSO simulate a second "mirror image" path
+using the exact NEGATIVE of those same random shocks, and average the two payoffs
+together as a single combined observation.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  A random shock and its exact opposite are, by construction, equally likely draws
+  from the same bell curve. If your first simulated path happens to wander unusually
+  far upward (just by chance), its mirror-image partner will wander unusually far
+  downward by the identical amount &mdash; averaging the two largely cancels out
+  that particular unlucky/lucky draw's contribution to your final estimate's noise,
+  essentially for free, since generating the mirror image costs almost nothing
+  extra once you already have the original random numbers.
+</div>
+
+<div class="box finding">
+  <span class="box-label">The Project's Result</span>
+  Tested at an EQUAL total simulation budget (same total number of price paths
+  either way), antithetic variates reduced the Monte Carlo standard error of the
+  Merton price estimate by 10.5% for SPY and 12.6% for BTC-USD &mdash; a real,
+  "more precision for the same computer time" improvement, with the estimate
+  remaining just as unbiased (still agreeing with the independently-validated
+  closed-form Merton price) as plain, unpaired simulation.
+</div>
+
+<h2 class="section" id="p10-control">10.3 Control Variates: Borrowing a Known Answer</h2>
+
+<p>The second technique exploits the fact that this project already has an EXACT,
+closed-form Black-Scholes price (Part 3.1) available. Simulate a Merton path and a
+"pretend there are no jumps" Black-Scholes path <strong>using the exact same random
+diffusive shocks</strong> for both, so the two simulated payoffs are highly
+correlated with each other. Then correct the Merton Monte Carlo estimate by however
+much the SAME-random-numbers Black-Scholes simulation happened to miss its own
+KNOWN, exact answer.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Imagine two friends, A and B, running the same errand route on the same windy
+  day. You already know EXACTLY how long B's route should take under calm
+  conditions (a known answer). If B actually arrives 4 minutes late today (because
+  of the wind), and A took a very similar, correlated route, you can reasonably
+  guess A was ALSO slowed by about 4 minutes of wind &mdash; and subtract that
+  known wind effect from A's observed time to get a better estimate of A's
+  "no-wind" time than A's raw observed time alone would give you. Control variates
+  do exactly this: the Black-Scholes simulation's known error (from the "wind" of
+  that day's particular random numbers) is used to correct the Merton simulation's
+  estimate, since both experienced the identical randomness.
+</div>
+
+<div class="box finding">
+  <span class="box-label">The Project's Result</span>
+  Control variates reduced Monte Carlo standard error by 36.8% for SPY and 42.3%
+  for BTC-USD at equal simulation budget &mdash; a substantially bigger improvement
+  than antithetic variates, because the Black-Scholes/Merton correlation this
+  method exploits is very strong (the two models differ only by the presence of
+  jumps, which are relatively rare events).
+</div>
+
+<h2 class="section" id="p10-importance">10.4 Importance Sampling: Deliberately Oversampling the Bad Outcomes</h2>
+
+<p>The previous two techniques speed up ordinary option PRICING. This one is
+purpose-built for a different, arguably more relevant problem in this project:
+efficiently estimating a very deep-tail CVaR (say, the 99% level) without needing
+an enormous number of paths.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  Imagine testing an extremely reliable lightbulb for its failure rate. Testing
+  10,000 completely typical bulbs at random will likely produce almost no failures
+  at all &mdash; you've "wasted" most of your test budget confirming that ordinary
+  bulbs don't fail, learning very little about the RARE failure cases you actually
+  care about. A smarter approach: deliberately test bulbs under harsher-than-normal
+  conditions (more oversampling of "bad" scenarios), see how they fail under those
+  harsher conditions, and then mathematically correct ("reweight") your results
+  to reflect what the TRUE failure rate would be under normal conditions. This
+  project applies the identical idea to crash risk: instead of simulating paths
+  under the asset's TRUE, calibrated jump frequency (where crashes are rare and a
+  large sample is needed to see enough of them), it deliberately INFLATES the jump
+  arrival rate &mdash; simulating a deliberately crash-heavy alternate world
+  &mdash; then mathematically reweights every simulated path to correct for the
+  fact that crashes were made artificially more common.
+</div>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; The Reweighting ("Likelihood Ratio")</span>
+  <div class="eq">L = e<sup>&lambda;T(c&minus;1)</sup> &middot; c<sup>&minus;N</sup></div>
+  <table class="symboltable">
+    <tr><td class="sym">c</td><td>The "tilting" factor by which the jump rate is deliberately inflated for simulation purposes (this project uses c=2, i.e., simulating with DOUBLE the true jump frequency).</td></tr>
+    <tr><td class="sym">N</td><td>The actual number of jumps that occurred on one particular simulated path (under the inflated rate).</td></tr>
+    <tr><td class="sym">L</td><td>The "correction weight" for that path: paths with MORE jumps than typical (which are now artificially overrepresented, since we inflated the jump rate) get a SMALLER weight when we average results back together, exactly undoing the artificial oversampling.</td></tr>
+  </table>
+  Every simulated outcome is multiplied by its own L before being averaged into a
+  final CVaR estimate &mdash; a technique called <strong>self-normalized importance
+  sampling</strong>, which produces a provably unbiased final answer despite
+  simulating from a deliberately "wrong" (tilted) process along the way.
+</div>
+
+<div class="box finding">
+  <span class="box-label">The Project's Result</span>
+  <table class="data">
+    <tr><th>Asset</th><th>Ground truth (n=8,000, true rate)</th><th>Plain MC (n=2,000)</th><th>Importance-sampled (n=2,000)</th></tr>
+    <tr><td>SPY CVaR(99%)</td><td>52.07</td><td>52.97</td><td>49.15</td></tr>
+    <tr><td>BTC-USD CVaR(99%)</td><td>13,447.05</td><td>13,818.76</td><td>13,672.87</td></tr>
+  </table>
+  Validated two ways: the importance-sampled estimate using only 2,000 paths lands
+  close to a ground-truth answer that needed a 4&times;-larger, 8,000-path plain
+  simulation to establish; and across 20 independently repeated re-draws at the
+  SAME (small) path count, importance sampling showed lower estimator variance
+  than plain Monte Carlo specifically at this deep quantile &mdash; exactly the
+  claimed benefit.
+</div>
+
+<div class="box caution">
+  <span class="box-label">Caution / Limitation &mdash; Verified, Not Assumed</span>
+  The tilting factor c is a genuine tradeoff, not a dial to be cranked up
+  indefinitely: too LITTLE tilting barely oversamples the tail at all (little
+  benefit over plain simulation), while too MUCH tilting creates a small number of
+  paths with enormous correction weights L, which can actually INCREASE the
+  estimator's variance again (a phenomenon called "weight degeneracy"). This
+  project verified empirically that c=2 works well for its specific problem, while
+  c=4 or higher was measurably WORSE than plain Monte Carlo on the exact same
+  problem &mdash; the right amount of tilting must be checked, not assumed.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/variance_reduction.py</code>: <code>merton_price_antithetic()</code>,
+  <code>merton_price_control_variate()</code>,
+  <code>merton_simulate_paths_importance_sampled()</code>, and
+  <code>weighted_var_cvar()</code> (a version of CVaR/VaR that correctly accounts
+  for each simulated path carrying its own reweighting factor, rather than every
+  path counting equally).
+</div>
+
+<!-- ============================== PART 11: PL/STRESS/VALIDATION ============================== -->
+<div class="part-title-page" id="part11">
+  <div class="part-kicker">Part 11</div>
+  <h1>P&amp;L Attribution, Stress Testing, and Model Validation</h1>
+  <div class="part-teaser">Three more tools a real bank's market-risk desk uses
+  every single day, each corroborating the headline finding from a completely
+  different angle.</div>
+</div>
+
+<h2 class="section" id="p11-attribution">11.1 Greeks-Based P&amp;L Attribution: "Where Did Today's Money Go?"</h2>
+
+<p>Real trading desks don't just report "we made/lost $X today" &mdash; they
+EXPLAIN it, breaking the day's change in the option's value into pieces
+attributable to each Greek from Part 3.2, plus whatever is left over.</p>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; The P&amp;L Explain</span>
+  <div class="eq">&Delta;V &asymp; &Delta;&middot;&Delta;S + &frac12;&Gamma;&middot;&Delta;S&sup2; + &Theta;&middot;&Delta;t + residual</div>
+  <table class="symboltable">
+    <tr><td class="sym">&Delta;V</td><td>The ACTUAL total change in the option's value from one day to the next.</td></tr>
+    <tr><td class="sym">&Delta;&middot;&Delta;S</td><td>The piece explained by Delta: how much the option's value should change, JUST from the underlying moving by &Delta;S, holding Delta itself fixed.</td></tr>
+    <tr><td class="sym">&frac12;&Gamma;&middot;&Delta;S&sup2;</td><td>A correction piece explained by Gamma: since Delta itself isn't really fixed as the price moves, this term accounts for how much MORE (or less) the price change was worth because Delta was curving as it went.</td></tr>
+    <tr><td class="sym">&Theta;&middot;&Delta;t</td><td>The piece explained by ordinary time decay &mdash; the option loses (or occasionally gains) a predictable amount of value just from one day passing, even if the price hadn't moved at all.</td></tr>
+    <tr><td class="sym">residual</td><td>Whatever is LEFT OVER after subtracting the three predictable pieces above from the actual change &mdash; this is exactly what a smooth, gradual (Delta/Gamma/Theta-based) approximation could NOT anticipate, including any actual price JUMP that occurred that day.</td></tr>
+  </table>
+</div>
+
+<div class="box plain">
+  <span class="box-label">Plain English</span>
+  This formula is a "Taylor expansion" &mdash; a standard mathematical trick for
+  approximating how a smooth, curved function changes using only its slope
+  (Delta), its curvature (Gamma), and its dependence on time (Theta), evaluated at
+  a single starting point. It works very well for ORDINARY, gradual price moves.
+  But on a day when the underlying price genuinely JUMPS, no smooth approximation
+  built from a single starting point can see that coming &mdash; so the "residual"
+  term spikes sharply on exactly those days, which is precisely the point: it turns
+  this project's headline CVaR finding into a day-by-day, causal story instead of
+  only a single terminal number.
+</div>
+
+<div class="box finding">
+  <span class="box-label">The Project's Finding</span>
+  Aggregated across many simulated paths under the SAME calibrated, genuinely-jumpy
+  "true" market, the Black-Scholes hedge's residual distribution shows a visibly
+  FATTER left tail (a higher residual CVaR) than the Merton hedge's &mdash; the
+  same headline finding as Part 6, now demonstrated at the level of individual
+  trading days, and directly attributable to jump days specifically (a synthetic
+  test in the module inserts one large artificial jump mid-path and confirms the
+  residual spikes almost exactly on that day, and nowhere else).
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/pnl_attribution.py</code>, functions <code>compute_pnl_attribution()</code>
+  (one path, full day-by-day detail) and <code>compute_pnl_attribution_batch()</code>
+  (many paths at once, summary totals only).
+</div>
+
+<h2 class="section" id="p11-stress">11.2 Deterministic Scenario Stress Testing</h2>
+
+<p>Every method so far is <strong>statistical</strong>: it works from a probability
+distribution built out of thousands of randomly simulated paths. Real risk
+functions ALSO run <strong>deterministic stress tests</strong> &mdash; specific,
+hand-designed "what if THIS exact thing happened" scenarios, with no reference to
+any probability distribution at all. This matters because "this precise scenario
+never showed up in my calibration window" is exactly the kind of risk a purely
+statistical model can under-price.</p>
+
+<table class="data">
+<tr><th>Scenario</th><th>What it represents</th></tr>
+<tr><td>Black Monday</td><td>A single-day, 20% crash (echoing October 19, 1987).</td></tr>
+<tr><td>COVID-style crash</td><td>A multi-day crash followed by an elevated-volatility aftermath (echoing March 2020).</td></tr>
+<tr><td>Flash crash</td><td>A sharp intraday-style drop with a partial same-window rebound.</td></tr>
+<tr><td>Vol-regime doubling</td><td>No directional crash at all &mdash; just realized volatility suddenly doubling.</td></tr>
+<tr><td>Slow grind lower</td><td>Sustained mild NEGATIVE drift with LOW volatility &mdash; the "boring but bleeding" scenario a jump-focused model can miss entirely.</td></tr>
+<tr><td>Melt-up rally</td><td>A sustained sharp RALLY &mdash; testing that a short-option position's pain isn't only ever about crashes.</td></tr>
+</table>
+
+<div class="box finding">
+  <span class="box-label">The Project's Finding</span>
+  Every one of these scenarios is run through the EXACT SAME hedging engine as the
+  statistical study (Part 5) &mdash; not a separate, ad-hoc calculation &mdash; and
+  the Merton (jump-aware) hedge outperforms the Black-Scholes hedge in EVERY single
+  named scenario, on both assets, with by far the largest gaps in the genuine crash
+  scenarios (on BTC-USD, the Merton hedge's Black-Monday loss is more than 5&times;
+  smaller than the BS hedge's). This is a completely distribution-free
+  corroboration of the statistical finding from Part 6.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/stress_testing.py</code>, functions <code>build_scenarios()</code>
+  (constructs each named price path) and <code>run_stress_scenarios()</code>
+  (runs every scenario through the same hedging engine used everywhere else).
+</div>
+
+<h2 class="section" id="p11-validation">11.3 Model Validation: Does the VaR Model Actually Work Out-of-Sample?</h2>
+
+<p>Before any risk model is trusted at a real bank, an independent
+"model-validation" function checks whether it is even well-calibrated: if a VaR
+model claims "only a 5% chance of losing more than $X," does that actually hold up
+against real, subsequent outcomes the model was NOT trained on?</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English &mdash; the honest train/test split</span>
+  It would be cheating to estimate your VaR threshold using ALL your data, then
+  check how well that same threshold "predicts" the very data it was built from
+  &mdash; of course it will look reasonable, because it was fit to that exact data.
+  This project instead splits its simulated paths in half: the FIRST half is used
+  only to estimate the VaR threshold, and the SECOND, held-out half is used only to
+  COUNT how many times that threshold was actually breached &mdash; an honest,
+  out-of-sample test, mirroring exactly how a bank's model-validation team is
+  required to test a production risk model.
+</div>
+
+<div class="box formula">
+  <span class="box-label">Formula &mdash; Kupiec's Proportion-of-Failures Test</span>
+  A likelihood-ratio statistical test comparing the ACTUALLY OBSERVED breach rate
+  in the held-out half against the model's STATED target rate (e.g., 5%). Its
+  output is, once again, a p-value (Part 7.4): a small p-value means the observed
+  breach rate is significantly different from what the model promised &mdash; i.e.,
+  the model is miscalibrated, not just unlucky.
+  <table class="symboltable">
+    <tr><td class="sym">Basel traffic light</td><td>A simpler, regulator-friendly version of the same idea: count the number of breaches in the held-out sample, and classify the model as GREEN (a healthy number of breaches), YELLOW (a borderline/concerning number), or RED (clearly too many breaches to trust the model) based on standard, published cutoffs.</td></tr>
+  </table>
+</div>
+
+<div class="box finding">
+  <span class="box-label">The Project's Finding</span>
+  <table class="data">
+    <tr><th>Asset</th><th>Hedge model</th><th>Exception rate (target 5%)</th><th>Kupiec p-value</th><th>Basel zone</th></tr>
+    <tr><td>SPY</td><td>BS hedge</td><td>5.65%</td><td>0.064</td><td><strong>Yellow</strong></td></tr>
+    <tr><td>SPY</td><td>Merton hedge</td><td>5.55%</td><td>0.117</td><td>Green</td></tr>
+    <tr><td>BTC-USD</td><td>BS hedge</td><td>5.12%</td><td>0.718</td><td>Green</td></tr>
+    <tr><td>BTC-USD</td><td>Merton hedge</td><td>4.95%</td><td>0.884</td><td>Green</td></tr>
+  </table>
+  A genuinely interesting, honestly-reported finding: the BS hedge's OWN
+  self-assessed VaR model for SPY lands in the Basel YELLOW zone (borderline
+  miscalibrated out-of-sample), while the Merton-hedge model is solidly GREEN. This
+  is exactly the kind of red flag that would trigger a model refinement request
+  from an independent model-validation function at a real bank.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/model_validation.py</code>, functions <code>kupiec_pof_test()</code>,
+  <code>basel_traffic_light()</code>, and <code>run_var_backtest()</code> (which
+  performs the train/held-out split and runs both tests).
+</div>
+
+<!-- ============================== PART 12: PIPELINE ============================== -->
+<div class="part-title-page" id="part12">
+  <div class="part-kicker">Part 12</div>
+  <h1>The Experiment Pipeline &mdash; A 14-Step Walkthrough</h1>
+  <div class="part-teaser">Running <code style="background:rgba(255,255,255,0.15); color:white;">python src/run_experiment.py</code>
+  executes every idea in Parts 3&ndash;11 in one continuous script. Here is what
+  happens, step by step, and why the steps are ordered this way.</div>
+</div>
+
+<p>All of this project's tables and figures (in <code>results/tables/</code> and
+<code>results/figures/</code>) are produced by one script,
+<code>src/run_experiment.py</code>, which runs 14 steps in sequence, each one
+building on data prepared by an earlier step. The whole pipeline completes in well
+under two minutes on cached historical data.</p>
+
+<table class="data">
+<tr><th>Step</th><th>What it does</th><th>Concepts from</th></tr>
+<tr><td><strong>1</strong></td><td>Load real SPY and BTC-USD price history and calibrate both Heston and Merton parameters to each asset.</td><td>Part 4</td></tr>
+<tr><td><strong>2</strong></td><td>Plot each model's implied-volatility "smile" across strikes, as a pricing sanity check &mdash; even with one flat input volatility, Heston and Merton naturally produce a smile shape that Black-Scholes cannot.</td><td>Part 3</td></tr>
+<tr><td><strong>3</strong></td><td><strong>The headline experiment:</strong> simulate 8,000 alternate 3-month futures under each asset's calibrated Merton process, hedge daily with either BS or Merton Delta, and compute CVaR of the resulting hedging losses.</td><td>Parts 5, 6</td></tr>
+<tr><td><strong>4</strong></td><td>Repeat Step 3's comparison, now also including a Heston hedge, at the SAME full 8,000-path scale (made possible by the COS method).</td><td>Parts 3.3&ndash;3.4</td></tr>
+<tr><td><strong>5</strong></td><td>Sweep the rebalancing frequency from daily to monthly, tracking the cost/risk tradeoff.</td><td>Part 5.2</td></tr>
+<tr><td><strong>6</strong></td><td><strong>The real-data backtest:</strong> replay actual historical price windows (not simulated paths), using WALK-FORWARD calibration to avoid look-ahead bias.</td><td>Parts 4, 6</td></tr>
+<tr><td><strong>7</strong></td><td>Compare fixed-frequency rebalancing against band ("no-transaction region") hedging.</td><td>Part 5.3</td></tr>
+<tr><td><strong>8</strong></td><td>Run all six named deterministic stress scenarios through the same hedging engine.</td><td>Part 11.2</td></tr>
+<tr><td><strong>9</strong></td><td>Backtest the VaR model itself using the honest train/held-out split, Kupiec's test, and the Basel traffic light.</td><td>Part 11.3</td></tr>
+<tr><td><strong>10</strong></td><td>Compute bootstrap confidence intervals and a paired hypothesis test on the Step 3 headline numbers.</td><td>Part 7</td></tr>
+<tr><td><strong>11</strong></td><td>Fit the Extreme Value Theory tail model and compare it against historical CVaR at several tail depths.</td><td>Part 8</td></tr>
+<tr><td><strong>12</strong></td><td>Run the Delta-Vega hedging comparison under each asset's own calibrated, genuinely stochastic-volatility Heston process.</td><td>Part 5.4</td></tr>
+<tr><td><strong>13</strong></td><td>Price American options (binomial tree + Crank-Nicolson PDE) and produce the early-exercise boundary figure.</td><td>Part 9</td></tr>
+<tr><td><strong>14</strong></td><td>Demonstrate Monte Carlo variance reduction (antithetic/control variates) and importance sampling for efficient tail-risk estimation.</td><td>Part 10</td></tr>
+</table>
+
+<div class="box plain">
+  <span class="box-label">Plain English &mdash; why this order?</span>
+  The pipeline is ordered so that later steps can always reuse results computed by
+  earlier ones (Step 1's calibration feeds every single later step; Step 3's
+  headline paths are re-used, with the identical random seed, by Steps 10 and 11 so
+  that the bootstrap confidence intervals and EVT tail model describe EXACTLY the
+  same numbers quoted as the headline result, not a separately-drawn approximation
+  to them). Steps 1&ndash;9 form the "original" core experiment; Steps 10&ndash;14
+  are the newer additions layered on top, each one deepening or stress-testing a
+  specific piece of the original story rather than changing its central conclusion.
+</div>
+
+<div class="box filenote">
+  <span class="box-label">Where This Lives in the Project</span>
+  <code>src/run_experiment.py</code>, one function per step (named
+  <code>step1_load_and_calibrate()</code> through
+  <code>step14_variance_reduction()</code>), called in order from a single
+  <code>main()</code> function at the bottom of the file. Every table this
+  pipeline produces is saved as a CSV file in <code>results/tables/</code>, and
+  every figure as a PDF in <code>results/figures/</code> &mdash; both directories
+  are also where the interactive dashboard (Part 13) loads its precomputed,
+  "report-scale" numbers from, so what you see in the dashboard and what is quoted
+  in <code>report/report.md</code> are always the same underlying numbers.
+</div>
+
+<!-- ============================== PART 13: DASHBOARD ============================== -->
+<div class="part-title-page" id="part13">
+  <div class="part-kicker">Part 13</div>
+  <h1>Inside the Dashboard &mdash; All 16 Tabs Explained</h1>
+  <div class="part-teaser">Run <code style="background:rgba(255,255,255,0.15); color:white;">streamlit run src/dashboard.py</code>
+  to open this interactive companion in your browser. This part explains every
+  single tab: what it shows, what you can control, and how to read it.</div>
+</div>
+
+<p>The dashboard is built with <strong>Streamlit</strong>, a Python library that
+turns a normal Python script into an interactive web page: every slider, dropdown,
+and button you see is one line of Python code, and every time you change a control,
+Streamlit silently re-runs the relevant calculation and refreshes the charts
+&mdash; most of which are built with <strong>Plotly</strong>, a charting library
+whose charts you can zoom into, pan around, hover over for exact values, and
+toggle individual data series on/off by clicking their legend entry. This is
+deliberately NOT a "configure everything, then click one Run button" tool: every
+tab is built to show results across MULTIPLE parameter combinations simultaneously
+(different hedge models, different rebalancing frequencies, both assets at once),
+so you can explore the model-risk story yourself rather than trusting one
+precomputed chart.</p>
+
+<div class="box plain">
+  <span class="box-label">Plain English &mdash; "precomputed" vs. "live" numbers</span>
+  You will see two flavours of result throughout the dashboard. <strong>Precomputed
+  ("report-scale") numbers</strong> are the exact figures from
+  <code>results/tables/</code>, generated once by the full pipeline (Part 12) at
+  full scale (typically 8,000 simulated paths) &mdash; these are the authoritative
+  numbers quoted in the written report. <strong>Live numbers</strong> are
+  recomputed on the spot, in your browser session, using whatever parameters you've
+  currently set on the page's sliders and dropdowns &mdash; usually at a smaller
+  path count so the page stays responsive. Comparing the two side by side is
+  itself a useful exercise: if the live, smaller-sample number is close to the
+  precomputed, full-scale number, that is direct, hands-on evidence that the
+  original result is a stable finding rather than a fluke of one particular run.
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 1 &mdash; Overview</div>
+  <div class="tabbody">
+    <p>The landing page: a four-box "recipe" of the whole experiment (true market
+    &rarr; hedge model &rarr; discrete hedging simulation &rarr; CVaR of P&amp;L),
+    four headline metric cards comparing BS-hedge vs. Merton-hedge CVaR on both the
+    real-data backtest and the 8,000-path simulation, and a combined bar chart
+    showing all four numbers side by side, faceted by asset.</p>
+    <h5>Look for</h5>
+    <p>An expandable panel titled "Methodological check: is the real-data backtest
+    look-ahead biased?" &mdash; this shows, side by side, the corrected
+    walk-forward CVaR numbers (Part 4.1, Part 6) against what the ORIGINAL,
+    look-ahead-biased full-sample calibration would have reported, quantifying
+    exactly how much that fixed bug mattered (small for SPY, a genuinely material
+    ~40&ndash;65% overstatement for BTC-USD).</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 2 &mdash; Data &amp; Calibration</div>
+  <div class="tabbody">
+    <p>For each asset, side by side: a price history chart, a rolling 21-day
+    realized-volatility chart, and a histogram of daily returns with the
+    threshold-flagged "jump days" (Part 4.2) highlighted in a contrasting colour,
+    plus a small table of every calibrated Heston and Merton parameter.</p>
+    <h5>Look for</h5>
+    <p>How visibly different SPY's and BTC-USD's return histograms are &mdash;
+    BTC-USD's is noticeably wider and has more extreme flagged jump days, a direct
+    visual confirmation of the calibrated numbers in Part 4.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 3 &mdash; Live Market Check</div>
+  <div class="tabbody">
+    <p>Fetches SPY's REAL, CURRENT options chain live from Yahoo Finance (you can
+    choose a target expiry with a slider) and overlays the market's actual,
+    live implied-volatility smile against this project's historically-calibrated
+    Merton model smile at the closest matching expiry &mdash; a genuine, live
+    Q-measure vs. P-measure comparison (Part 4.1), computing the "volatility risk
+    premium" (how much extra volatility the market is currently pricing in versus
+    the historical model) directly.</p>
+    <h5>Look for</h5>
+    <p>This tab requires live internet access to Yahoo Finance and degrades
+    gracefully with a plain warning message if that fetch fails &mdash; every
+    other tab is unaffected either way. BTC-USD has no listed options chain on
+    Yahoo Finance, so this tab is SPY-only.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 4 &mdash; Volatility Smile</div>
+  <div class="tabbody">
+    <p>For each asset, a chart of "Black-Scholes implied volatility" across a range
+    of strikes, for all three models. Black-Scholes' own line is perfectly flat by
+    construction (Part 3.1 assumes one constant &sigma;); Heston's and Merton's
+    lines curve into a "smile" or "smirk" shape purely from their own richer
+    dynamics, EVEN THOUGH all three models were fed the same starting flat
+    volatility number &mdash; a visual pricing sanity check that these more complex
+    models are actually doing something meaningfully different from Black-Scholes.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 5 &mdash; Headline CVaR Result</div>
+  <div class="tabbody">
+    <p>The project's central chart: a bar chart of BS-hedge vs. Merton-hedge
+    CVaR(95%), both assets at once (Part 6). Below it, a slider lets you choose how
+    many paths (1,000 to 8,000) to LIVE re-simulate, rendered as violin plots
+    (a distribution shape drawn sideways, wider where outcomes are more common)
+    showing the full shape of the hedging-P&amp;L distribution for each hedge
+    model, with CVaR and mean P&amp;L metric cards underneath each.</p>
+    <h5>Look for</h5>
+    <p>How the BS hedge's violin plot visibly has a longer, fatter tail stretching
+    toward large losses compared to Merton's &mdash; the CVaR number is a summary
+    of exactly this visual difference.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 6 &mdash; Statistical Rigor</div>
+  <div class="tabbody">
+    <p>Implements Part 7 visually: a chart with one point-plus-error-bar per
+    hedge model per asset, showing the CVaR point estimate and its 95% bootstrap
+    confidence interval, followed by a plain-language statement of the paired
+    hypothesis test result (significant or not, with the exact p-value) for each
+    asset.</p>
+    <h5>Look for</h5>
+    <p>A "Live re-bootstrap" section lets you choose the asset, path count, number
+    of bootstrap resamples, and tail level (q), and watch the confidence interval
+    recompute in front of you &mdash; try lowering the path count and watch the
+    interval visibly widen, a direct, hands-on demonstration of "less data means
+    more uncertainty" (Part 7.1).</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 7 &mdash; Tail Risk (EVT)</div>
+  <div class="tabbody">
+    <p>Implements Part 8 visually: for a chosen asset, path count, and GPD
+    threshold (adjustable with a slider), a chart comparing historical CVaR against
+    EVT-based CVaR across a range of tail depths (5% down to 0.1%) on a logarithmic
+    axis, plus the two classic EVT diagnostic plots: the <strong>mean-excess
+    plot</strong> (should look roughly straight/linear if a GPD tail fit is
+    appropriate) and the <strong>Hill plot</strong> (should look roughly flat/stable
+    across a range of sample sizes if the tail-index estimate is trustworthy).</p>
+    <h5>Look for</h5>
+    <p>How historical and EVT curves overlap almost perfectly at the LEFT (shallow,
+    5%) end of the chart, then visibly diverge further right (deeper into the
+    tail) &mdash; a direct visual of exactly the "historical estimator runs out of
+    data" story from Part 8.1.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 8 &mdash; P&amp;L Attribution</div>
+  <div class="tabbody">
+    <p>Implements Part 11.1 visually. Pick an asset, hedge model, random seed, and
+    one specific simulated path (by index), and see that single path's cumulative
+    Delta/Gamma/Theta/residual P&amp;L build up over time next to the actual total,
+    plus a bar chart of each individual day's residual with the single largest day
+    highlighted. Below that, an aggregated view across many paths shows the full
+    DISTRIBUTION of total residual P&amp;L for BS vs. Merton hedges as overlapping
+    histograms.</p>
+    <h5>Look for</h5>
+    <p>Pick a path where the underlying happened to move a lot on one particular
+    day, and watch that day's residual bar visibly spike &mdash; the day-by-day,
+    "smoking gun" evidence for jump risk described in Part 11.1.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 9 &mdash; Heston Finding</div>
+  <div class="tabbody">
+    <p>A bar chart comparing BS, Heston, and Merton hedge CVaR, now confirmed at
+    the SAME full 8,000-path daily-rebalancing scale as the headline result (Part
+    3.4's COS-method upgrade is what made this possible; it previously ran at only
+    ~150 paths). A warning-styled callout explains the counter-intuitive finding:
+    Heston hedging is WORSE than even naive Black-Scholes on both assets, because
+    stochastic volatility (Heston's specialty) is simply the wrong tool against
+    jump risk (Merton's specialty) &mdash; "more sophisticated" is not the same as
+    "better suited to the actual risk present."</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 10 &mdash; Vega Hedging</div>
+  <div class="tabbody">
+    <p>Implements Part 5.4. A precomputed, report-scale bar chart of Delta-only vs.
+    Delta-Vega hedge CVaR (true market: each asset's own calibrated Heston
+    process), followed by a fully live re-simulation section: choose the asset, a
+    TRUE market (stochastic volatility OR jumps), the second instrument's strike,
+    the rebalancing frequency, and the path count, and see both the resulting P&amp;L
+    distributions (as violin plots) and the CVaR comparison update immediately.</p>
+    <h5>Look for</h5>
+    <p>Switching the "true market" control between the two options: Delta-Vega
+    hedging is built to help against stochastic-volatility risk specifically, and
+    the live chart lets you see, on demand, that it does noticeably less (or even
+    slightly harms) when the true risk is jumps instead &mdash; a hands-on version
+    of the honest, nuanced finding from Part 5.4.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 11 &mdash; Efficient Frontier &amp; Bands</div>
+  <div class="tabbody">
+    <p>Two linked studies. First, Part 5.2's rebalancing-frequency sweep: a
+    dual-axis chart of CVaR and standard deviation of P&amp;L against rebalancing
+    frequency, for both assets. Second, Part 5.3's band-hedging sweep: two
+    scatter charts (a precomputed report-scale version and a fully live,
+    re-sweepable version) plotting CVaR against average transaction cost paid for
+    several tolerance-band widths, with a dashed reference line marking plain
+    daily rebalancing's CVaR for comparison.</p>
+    <h5>Look for</h5>
+    <p>Points that sit BELOW AND TO THE LEFT of the dashed daily-rebalancing
+    reference line &mdash; those band widths achieve LOWER risk at LOWER cost
+    simultaneously, the "free lunch" result described in Part 5.3.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 12 &mdash; American Options</div>
+  <div class="tabbody">
+    <p>Implements Part 9. Choose an asset and option type (put/call), and see: four
+    metric cards (European tree price, American tree price, early-exercise
+    premium, and the Crank-Nicolson PDE price alongside how closely it agrees with
+    the tree), the early-exercise boundary curve traced directly from the PDE grid
+    over the option's whole life, and a second chart of how the early-exercise
+    premium itself changes across a range of strikes (moneyness).</p>
+    <h5>Look for</h5>
+    <p>The early-exercise boundary chart always staying below the strike price line
+    for a put (Part 9.3) &mdash; if it ever crossed above, that would indicate a
+    bug, since exercising a put when the stock is ABOVE the strike is never rational.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 13 &mdash; Stress Testing</div>
+  <div class="tabbody">
+    <p>Implements Part 11.2. Choose an asset and option type, and see a bar chart of
+    terminal hedging P&amp;L for BS vs. Merton hedge across all six named
+    scenarios, plus a summary noting how many of the scenarios the Merton hedge
+    won outright, and a full numeric table.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 14 &mdash; Model Validation</div>
+  <div class="tabbody">
+    <p>Implements Part 11.3. Four colour-coded cards (green/yellow/red, matching the
+    Basel traffic light) showing each asset/hedge-model combination's out-of-sample
+    exception rate and Kupiec p-value, a bar chart of exception rates against a
+    dashed 5%-target reference line, and a "Live re-backtest" section where you can
+    choose the asset, path count, VaR level, and train/test split fraction and
+    re-run the entire honest out-of-sample test on demand.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 15 &mdash; Interactive Risk Lab</div>
+  <div class="tabbody">
+    <p>A free-form exploration tab with no fixed narrative: choose an asset, option
+    type, path count, transaction cost, random seed, and risk-free rate, and watch
+    TWO simultaneous multi-parameter sweeps update &mdash; CVaR against rebalancing
+    frequency (line chart AND a colour-coded heatmap) and CVaR against strike/
+    moneyness &mdash; plus a "drill-down" section letting you pick one single
+    illustrative simulated path and watch its underlying price, hedge Delta, and
+    cash account evolve together over the option's life, side by side.</p>
+    <h5>Look for</h5>
+    <p>This tab is the best place to build your own intuition: nothing here is
+    precomputed, so every control genuinely changes what gets simulated and shown.</p>
+  </div>
+</div>
+
+<div class="tabcard">
+  <div class="tabhead">Tab 16 &mdash; Methodology &amp; Notes</div>
+  <div class="tabbody">
+    <p>A written reference tab (no charts) covering the same methodological
+    choices, limitations, and engineering notes as the written report (this guide's
+    companion document, <code>report/report.md</code>) &mdash; including a
+    "Skills Demonstrated" table mapping each source file to the quantitative
+    finance / numerical methods / statistics topic it showcases, useful as a quick
+    index into the rest of this guide.</p>
+  </div>
+</div>
+
+<!-- ============================== PART 14: FINDINGS/GLOSSARY/REFS ============================== -->
+<div class="part-title-page" id="part14">
+  <div class="part-kicker">Part 14</div>
+  <h1>Headline Findings, Glossary, and References</h1>
+  <div class="part-teaser">A one-page summary of everything this project
+  concluded, followed by a complete glossary of every term used in this guide.</div>
+</div>
+
+<h2 class="section" id="p14-findings">14.1 The Whole Project, in Six Findings</h2>
+
+<ol>
+<li><strong>A market maker hedging with Black-Scholes Delta carries meaningfully
+more tail risk than one hedging with jump-aware Merton Delta</strong>, on both a
+calm equity index (SPY, +22% higher CVaR) and a volatile cryptocurrency (BTC-USD,
++22% higher CVaR in simulation, +64% in a real-history walk-forward backtest)
+&mdash; and this gap is statistically significant well beyond conventional
+thresholds (p &lt; 0.001, Part 7).</li>
+<li><strong>Stochastic volatility (Heston) is not a jump hedge.</strong> Adding a
+"more sophisticated" Heston hedge, Delta-only, performed WORSE than plain
+Black-Scholes on both assets &mdash; sophistication has to match the specific risk
+present (jumps), not just add complexity in an unrelated dimension (Part 9's
+finding, confirmed at full statistical scale by the COS method upgrade).</li>
+<li><strong>Giving Heston a Vega hedge helps &mdash; sometimes.</strong> A
+Delta-Vega hedge cut CVaR by roughly a quarter for BTC-USD (genuine
+vol-of-vol risk) but slightly HURT for SPY (negligible vol-of-vol risk) &mdash; the
+same "match sophistication to the actual risk" lesson, one level deeper (Part 5.4).</li>
+<li><strong>The finding survives independent, distribution-free corroboration.</strong>
+Greeks-based P&amp;L attribution, six named deterministic crash/rally scenarios,
+and out-of-sample VaR backtesting (Kupiec/Basel) all independently confirm the same
+qualitative conclusion using completely different methodologies (Part 11).</li>
+<li><strong>A genuine look-ahead bias was found in the real-data backtest and
+fixed.</strong> An earlier version calibrated using an asset's entire history to
+hedge windows from years earlier &mdash; a textbook methodological error. The
+corrected, walk-forward version still confirms the same conclusion, now honestly
+(Part 4.1, Part 12 Step 6).</li>
+<li><strong>Extreme Value Theory, bootstrap confidence intervals, American options,
+and Monte Carlo variance reduction all extend the core finding's reach</strong>
+&mdash; into deeper tail quantiles than the raw sample can estimate directly, into
+formal uncertainty quantification, into early-exercisable contracts, and into more
+computationally efficient rare-event estimation, respectively (Parts 7, 8, 9, 10).</li>
+</ol>
+
+<h2 class="section" id="p14-glossary">14.2 Glossary</h2>
+
+<dl class="glossary">
+<dt>American option</dt><dd>An option that can be exercised at any time up to and including its maturity date, not just at maturity (Part 9).</dd>
+<dt>Antithetic variates</dt><dd>A Monte Carlo variance-reduction technique that pairs each simulated random path with its exact mirror image (Part 10.2).</dd>
+<dt>Basel traffic light</dt><dd>A regulatory framework classifying a VaR model as Green/Yellow/Red based on how many times it was breached out-of-sample (Part 11.3).</dd>
+<dt>Bootstrap</dt><dd>A statistical technique for estimating an estimate's own uncertainty by repeatedly resampling, with replacement, from the data you already have (Part 7.2).</dd>
+<dt>Calibration</dt><dd>Choosing numerical values for a model's parameters so it matches a specific real asset's behaviour (Part 4).</dd>
+<dt>Call option</dt><dd>A contract giving the right, but not the obligation, to BUY the underlying at a fixed strike price (Part 2.1).</dd>
+<dt>Cash account</dt><dd>The running ledger of cash a market maker holds while hedging, tracking premium received, share purchases/sales, transaction costs, and interest earned (Part 5.1).</dd>
+<dt>Characteristic function</dt><dd>A mathematical "fingerprint" of a probability distribution (built via a Fourier transform) that can recover any probability of interest via an inversion formula, even when the distribution has no simple closed-form shape (Part 3.3).</dd>
+<dt>Coherence (of a risk measure)</dt><dd>A property (satisfied by CVaR, not always by VaR) guaranteeing that combining two positions can never make your measured risk go up relative to holding them separately (Part 6.3).</dd>
+<dt>Compound Poisson process</dt><dd>A process where random "events" (jumps) arrive at random times, and each event additionally has its own random size (Part 3.5).</dd>
+<dt>Confidence interval</dt><dd>A range of values, built from a bootstrap or other statistical procedure, that we can be reasonably confident (e.g., 95% confident) contains the true, unknown value (Part 7.2).</dd>
+<dt>Control variates</dt><dd>A Monte Carlo variance-reduction technique that corrects an estimate using a correlated quantity whose true answer is already known exactly (Part 10.3).</dd>
+<dt>COS method</dt><dd>The Fourier-Cosine method (Fang &amp; Oosterlee, 2008): a fast, vectorizable way to price options under Heston by approximating the payoff and probability distribution as sums of cosine waves (Part 3.4).</dd>
+<dt>CVaR (Conditional Value-at-Risk)</dt><dd>The average loss across the worst q-fraction of outcomes &mdash; this project's primary risk measure (Part 6.3).</dd>
+<dt>Delta (&Delta;)</dt><dd>An option's sensitivity to a $1 move in the underlying price; also, the number of shares of the underlying to hold per option sold in order to hedge (Part 2.3, Part 3.2).</dd>
+<dt>Delta-Vega hedge</dt><dd>A hedge using a second option instrument, sized to neutralize net Vega, in addition to the underlying (Part 5.4).</dd>
+<dt>Diffusion / diffusive</dt><dd>The smooth, continuous (non-jumping) part of a price's random motion.</dd>
+<dt>Drift</dt><dd>The predictable, average trend component of an asset's price motion (Part 2.4).</dd>
+<dt>European option</dt><dd>An option that can only be exercised on its exact maturity date (Part 9.1).</dd>
+<dt>Extreme Value Theory (EVT)</dt><dd>A branch of statistics for estimating rare, extreme outcomes using a universal limiting distribution (the GPD) rather than raw historical extremes alone (Part 8).</dd>
+<dt>Finite difference</dt><dd>Estimating a derivative/sensitivity numerically by nudging an input up and down by a tiny amount and dividing the resulting price difference by the nudge size (Part 3.2); also, the general numerical-methods family the Crank-Nicolson PDE solver belongs to (Part 9.3).</dd>
+<dt>Gamma (&Gamma;)</dt><dd>The rate at which Delta itself changes as the underlying price moves (Part 3.2).</dd>
+<dt>Generalized Pareto Distribution (GPD)</dt><dd>The universal limiting shape of extreme exceedances over a high threshold, per the Pickands&ndash;Balkema&ndash;de Haan theorem (Part 8.2).</dd>
+<dt>Geometric Brownian Motion (GBM)</dt><dd>The standard "drift plus random wiggle" model of continuous price motion underlying Black-Scholes (Part 2.4).</dd>
+<dt>Heston model</dt><dd>An option-pricing model in which volatility itself is a second, random, mean-reverting process (Part 3.3).</dd>
+<dt>Hill estimator</dt><dd>A simpler, older estimator of a distribution's tail shape parameter, exact for pure power-law tails but biased for Generalized Pareto tails (Part 8.3).</dd>
+<dt>Implied volatility</dt><dd>The volatility number that, when plugged into Black-Scholes, reproduces an observed (market or model) option price.</dd>
+<dt>Importance sampling</dt><dd>A Monte Carlo technique that deliberately samples from a "wrong," tilted distribution emphasizing rare/important outcomes, then mathematically reweights the results to remove the bias this introduces (Part 10.4).</dd>
+<dt>Jump / jump-diffusion</dt><dd>A sudden, discontinuous change in an asset's price, as opposed to smooth, continuous drift-and-wiggle motion (Part 2.5, Part 3.5).</dd>
+<dt>Kupiec's test</dt><dd>A likelihood-ratio statistical test of whether a VaR model's observed breach rate matches its stated target rate (Part 11.3).</dd>
+<dt>Leverage effect</dt><dd>The empirically-observed tendency for volatility to rise when prices fall (Part 3.3).</dd>
+<dt>Look-ahead bias</dt><dd>A methodological error where a model or backtest uses information that would not actually have been available at the time being studied (Part 4.1, Part 12 Step 6).</dd>
+<dt>Market maker</dt><dd>A firm that stands ready to buy and sell an asset (here, options) continuously, profiting from the bid-ask spread rather than directional bets (Part 2.2).</dd>
+<dt>Maturity / expiry (T)</dt><dd>The date an option contract stops existing (Part 2.1).</dd>
+<dt>Mean reversion</dt><dd>The tendency of a quantity (e.g., volatility) to drift back toward its long-run average after a shock (Part 3.3).</dd>
+<dt>Merton (jump-diffusion) model</dt><dd>An option-pricing model that adds sudden random jumps to otherwise ordinary Geometric Brownian Motion (Part 3.5).</dd>
+<dt>Monte Carlo simulation</dt><dd>Estimating a mathematical quantity by generating and averaging over a large number of random simulated scenarios (Part 10.1).</dd>
+<dt>P-measure (physical measure)</dt><dd>Probabilities/calibration based on how an asset has ACTUALLY behaved historically (Part 4.1).</dd>
+<dt>Payoff</dt><dd>What an option is worth at maturity, e.g. max(S<sub>T</sub>&minus;K, 0) for a call (Part 2.1).</dd>
+<dt>P&amp;L attribution</dt><dd>Decomposing a change in an option's value into pieces explained by each Greek, plus a residual (Part 11.1).</dd>
+<dt>Poisson process</dt><dd>A standard probability model for randomly-timed rare events, characterized by an arrival rate &lambda; (Part 3.5).</dd>
+<dt>Premium</dt><dd>The price paid today to own an option (Part 2.1).</dd>
+<dt>p-value</dt><dd>The probability of observing a result at least as extreme as what was actually seen, if there were truly no real underlying effect (Part 7.4).</dd>
+<dt>Put option</dt><dd>A contract giving the right, but not the obligation, to SELL the underlying at a fixed strike price (Part 2.1).</dd>
+<dt>Q-measure (risk-neutral measure)</dt><dd>Probabilities/calibration based on what current, live option market prices imply (Part 4.1).</dd>
+<dt>Quantile</dt><dd>The value below which a given fraction of a sorted dataset falls (Part 6.2).</dd>
+<dt>Rebalancing</dt><dd>Adjusting a hedge position (buying/selling shares) to keep it aligned with the option's current Delta (Part 5.2).</dd>
+<dt>Rho (&rho; as a Greek)</dt><dd>An option's sensitivity to the risk-free interest rate (Part 3.2).</dd>
+<dt>Standard error</dt><dd>A measure of how much an estimate (such as a Monte Carlo average) would plausibly vary if the underlying random sampling were repeated (Part 7.1, Part 10.1).</dd>
+<dt>Statistical significance</dt><dd>A result unlikely to have occurred by chance alone, conventionally when its p-value is below 0.05 (Part 7.4).</dd>
+<dt>Stress testing</dt><dd>Running specific, hand-designed adverse scenarios through a model, independent of any probability distribution (Part 11.2).</dd>
+<dt>Strike (K)</dt><dd>The fixed price written into an option contract (Part 2.1).</dd>
+<dt>Theta (&Theta;)</dt><dd>An option's rate of value decay purely from time passing (Part 3.2).</dd>
+<dt>Threshold (in EVT)</dt><dd>The high cutoff loss level above which the Generalized Pareto Distribution is fitted to exceedances (Part 8.2).</dd>
+<dt>Underlying (S)</dt><dd>The actual asset (e.g., SPY, BTC-USD) that an option is written on (Part 2.1).</dd>
+<dt>VaR (Value-at-Risk)</dt><dd>The loss level exceeded only q-fraction of the time (a quantile of the loss distribution) (Part 6.2).</dd>
+<dt>Variance reduction</dt><dd>Any technique that reduces a Monte Carlo estimate's standard error without needing more simulated paths (Part 10).</dd>
+<dt>Vega</dt><dd>An option's sensitivity to a change in volatility (Part 3.2).</dd>
+<dt>Volatility (&sigma;)</dt><dd>The annualized typical size of an asset's random price fluctuations (Part 2.4).</dd>
+<dt>Walk-forward calibration</dt><dd>Recalibrating a model repeatedly through time, using only data available up to each point, to avoid look-ahead bias (Part 4.1).</dd>
+</dl>
+
+<h2 class="section" id="p14-refs">14.3 References</h2>
+
+<p class="small">
+Albrecher, H., Mayer, P., Schoutens, W., &amp; Tistaert, J. (2007). "The little Heston trap." <em>Wilmott Magazine</em>.<br>
+Balkema, A.A., &amp; de Haan, L. (1974). "Residual life time at great age." <em>Annals of Probability</em>, 2(5), 792&ndash;804.<br>
+Black, F., &amp; Scholes, M. (1973). "The pricing of options and corporate liabilities." <em>Journal of Political Economy</em>, 81(3), 637&ndash;654.<br>
+Cox, J.C., Ross, S.A., &amp; Rubinstein, M. (1979). "Option pricing: a simplified approach." <em>Journal of Financial Economics</em>, 7(3), 229&ndash;263.<br>
+Crank, J., &amp; Nicolson, P. (1947). "A practical method for numerical evaluation of solutions of PDEs of the heat-conduction type." <em>Proc. Cambridge Phil. Soc.</em>, 43(1).<br>
+Efron, B., &amp; Tibshirani, R.J. (1993). <em>An Introduction to the Bootstrap.</em> Chapman &amp; Hall.<br>
+Fang, F., &amp; Oosterlee, C.W. (2008). "A novel pricing method for European options based on Fourier-cosine series expansions." <em>SIAM J. Sci. Comput.</em>, 31(2), 826&ndash;848.<br>
+Glasserman, P. (2003). <em>Monte Carlo Methods in Financial Engineering.</em> Springer.<br>
+Heston, S.L. (1993). "A closed-form solution for options with stochastic volatility." <em>Review of Financial Studies</em>, 6(2), 327&ndash;343.<br>
+Hill, B.M. (1975). "A simple general approach to inference about the tail of a distribution." <em>Annals of Statistics</em>, 3(5), 1163&ndash;1174.<br>
+Hull, J.C. <em>Options, Futures, and Other Derivatives.</em> Pearson (textbook benchmark used in Part 3.1).<br>
+Kupiec, P. (1995). "Techniques for verifying the accuracy of risk measurement models." <em>Journal of Derivatives</em>, 3(2).<br>
+Lord, R., Koekkoek, R., &amp; Van Dijk, D. (2010). "A comparison of biased simulation schemes for stochastic volatility models." <em>Quantitative Finance</em>, 10(2), 177&ndash;194.<br>
+McNeil, A.J., &amp; Frey, R. (2000). "Estimation of tail-related risk measures for heteroscedastic financial time series." <em>Journal of Empirical Finance</em>, 7(3-4).<br>
+Merton, R.C. (1976). "Option pricing when underlying stock returns are discontinuous." <em>Journal of Financial Economics</em>, 3(1-2), 125&ndash;144.<br>
+Pickands, J. (1975). "Statistical inference using extreme order statistics." <em>Annals of Statistics</em>, 3(1), 119&ndash;131.<br>
+Whalley, A.E., &amp; Wilmott, P. (1993). "An asymptotic analysis of an optimal hedging model for option pricing with transaction costs." <em>Mathematical Finance</em>.<br>
+Wilmott, P., Howison, S., &amp; Dewynne, J. (1995). <em>The Mathematics of Financial Derivatives.</em> Cambridge University Press.
+</p>
+
+<hr class="sep">
+<p class="small center">This guide is a companion to <code>README.md</code> and
+<code>report/report.md</code> in the project repository, which contain the complete,
+condensed technical write-up and every result table this guide references.</p>
+
+</body>
+</html>
