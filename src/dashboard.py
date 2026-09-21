@@ -547,25 +547,6 @@ with tab_overview:
     for col, (title, desc) in zip(st.columns(4), steps):
         col.info(f"**{title}**\n\n{desc}")
 
-    st.markdown("#### Headline numbers")
-    spy_real = realdata_df[realdata_df["asset"] == ASSET_LABELS["spy"]].iloc[0]
-    btc_real = realdata_df[realdata_df["asset"] == ASSET_LABELS["btc"]].iloc[0]
-    spy_sim = headline_df[headline_df["asset"] == ASSET_LABELS["spy"]]
-    btc_sim = headline_df[headline_df["asset"] == ASSET_LABELS["btc"]]
-    spy_sim_bs = spy_sim[spy_sim["hedge_model"].str.contains("BS")]["CVaR_5pct"].iloc[0]
-    spy_sim_mt = spy_sim[spy_sim["hedge_model"].str.contains("Merton")]["CVaR_5pct"].iloc[0]
-    btc_sim_bs = btc_sim[btc_sim["hedge_model"].str.contains("BS")]["CVaR_5pct"].iloc[0]
-    btc_sim_mt = btc_sim[btc_sim["hedge_model"].str.contains("Merton")]["CVaR_5pct"].iloc[0]
-
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("SPY — real-data backtest", f"+{(spy_real['BS_CVaR_5pct']/spy_real['Merton_CVaR_5pct']-1)*100:.0f}%",
-              "BS hedge CVaR vs. Merton hedge", delta_color="inverse")
-    m2.metric("BTC — real-data backtest", f"+{(btc_real['BS_CVaR_5pct']/btc_real['Merton_CVaR_5pct']-1)*100:.0f}%",
-              "BS hedge CVaR vs. Merton hedge", delta_color="inverse")
-    m3.metric("SPY — simulated (8,000 paths)", f"+{(spy_sim_bs/spy_sim_mt-1)*100:.0f}%",
-              "BS hedge CVaR vs. Merton hedge", delta_color="inverse")
-    m4.metric("BTC — simulated (8,000 paths)", f"+{(btc_sim_bs/btc_sim_mt-1)*100:.0f}%",
-              "BS hedge CVaR vs. Merton hedge", delta_color="inverse")
 
     st.markdown("#### BS vs. Merton hedge — simulated and real-data, both assets at once")
     combo_rows = []
