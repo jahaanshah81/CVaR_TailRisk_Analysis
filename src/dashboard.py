@@ -125,16 +125,6 @@ st.markdown(
 st.markdown(
     """
     <div class="banner">
-      <span class="pill">Historical (P-measure) + live Q-measure comparison</span>
-      <span class="pill">Vectorized Monte Carlo</span>
-      <span class="pill">CVaR / EVT risk measure</span>
-      <span class="pill">Bootstrap inference</span>
-      <span class="pill">Greeks-based P&amp;L attribution</span>
-      <span class="pill">Delta-Vega hedging</span>
-      <span class="pill">American options (PDE / tree)</span>
-      <span class="pill">Basel-style VaR backtesting</span>
-      <span class="pill">Scenario stress testing</span>
-      <span class="pill">Validated on real SPY &amp; BTC-USD history</span>
       <h1>Options Market-Making &amp; Multi-Model Delta-Hedging Simulator</h1>
       <p>Quantifying <b>hidden tail risk from model misspecification</b> in derivatives hedging.
       A market maker who hedges Black-Scholes Delta in a market that actually jumps carries
